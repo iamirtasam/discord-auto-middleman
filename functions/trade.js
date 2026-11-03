@@ -441,10 +441,11 @@ await this.thread.send(UI.card(UI.COLORS.danger)
     }
 
     async handleTimeout() {
-        await this.thread.send({
-            embeds: [new EmbedBuilder().setTitle('> User failed to add a user. Trade process cancelled.').setColor('Red')],
-            ephemeral: true
-        });
+        await this.thread.send(UI.card(UI.COLORS.danger)
+            .title('Trade process cancelled', E.elite_CautionWarning)
+            .divider()
+            .text('User failed to add a user. The trade process has been cancelled.')
+            .msg());
         await this.closeThread();
     }
 
@@ -452,29 +453,21 @@ await this.thread.send(UI.card(UI.COLORS.danger)
         this.index = await this.generateUniqueNumber();
         this.progress = 'Generated Thread Key';
 
-        const xembed = new EmbedBuilder()
-            .setTitle(`${E.sv}  Welcome to Made by Joystoss`)
-            .setDescription(`**${E.GreenModShield}  Made by Joystoss is a secure platform for conducting transactions with confidence. We provide:
-                ${E.elite_dot} Neutral third-party escrow service**
-                ${E.elite_dot} Protection for buyers and sellers
-                ${E.elite_dot} Seamless and streamlined experience`)
-            .addFields(
-                { name: `${E.elite_CautionWarning} Important Instructions`, value: `${E.elite_dot} **Do not release funds until you have received the product or service as described.**\n${E.elite_dot} **If the item is not as described, contact our support team immediately.**` },
-                { name: `${E.faq} Trade Details`, value: `**Date:** <t:${Math.floor(Date.now() / 1000)}:F>\n**Trade Owner:** <@${this.interaction.user.id}>` },
-                { name: `${E.contract} Key`, value: `||${this.index}||` }
-            )
-            .setColor(0xFFFF00)
-            .setTimestamp()
-            .setFooter({ text: 'Made by Joystoss - Secure Transactions' });
+        const xembed = UI.card(UI.COLORS.warn)
+            .title('Welcome to Made by Joystoss', E.sv)
+            .divider()
+            .text(`||<@${this.interaction.user.id}>&<@${user.id}>||`)
+            .text(`**${E.GreenModShield}  Made by Joystoss is a secure platform for conducting transactions with confidence. We provide:\n${E.elite_dot} Neutral third-party escrow service**\n${E.elite_dot} Protection for buyers and sellers\n${E.elite_dot} Seamless and streamlined experience`)
+            .field(`${E.elite_CautionWarning}  Important Instructions`, `${E.elite_dot} **Do not release funds until you have received the product or service as described.**\n${E.elite_dot} **If the item is not as described, contact our support team immediately.**`)
+            .field(`${E.faq}  Trade Details`, `**Date:** <t:${Math.floor(Date.now() / 1000)}:F>\n**Trade Owner:** <@${this.interaction.user.id}>`)
+            .field(`${E.contract}  Key`, `||${this.index}||`)
+            .foot('Made by Joystoss - Secure Transactions', { ts: Math.floor(Date.now() / 1000) });
 
         await Promise.all([
             this.thread.setName(`Trade with @${this.interaction.user.username} and @${user.user.username}`),
             this.thread.members.add(user),
             this.promptMessage.delete().catch(error => console.error('Error deleting message:', error)),
-            this.thread.send({
-                embeds: [xembed],
-                content: `||<@${this.interaction.user.id}>&<@${user.id}>||`
-            }),
+            this.thread.send(xembed.msg({ allowPing: true })),
             this.userMap.set(user.id, this.interaction.user.id),
             this.progress = `Started Trade With ${this.interaction.user.id} & ${user.id}`,
             this.saveState(),
@@ -493,35 +486,9 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
     async initRoleSel() {
         try {
-            const selectEmbed = new EmbedBuilder()
-                .setTitle(`>  ${E.faq}  Verify Trade Details`)
-                .addFields({
-                    name: `${E.fastforward} Sender (LTC sender)`,
-                    value: this.sender ? `<@${this.sender}>` : 'None selected',
-                    inline: true
-                }, {
-                    name: `${E.fastforward} Receiver (Receiver)`,
-                    value: this.receiver ? `<@${this.receiver}>` : 'None selected',
-                    inline: true
-                }, {
-                    name: `${E.elite_CautionWarning} Important`,
-                    value: `**\`\`
-Ensure the trade details are correct before proceeding.
-If any information is incorrect, contact support immediately.\`\`**`
-                })
-                .setColor(0xFFFF00)
-                .setTimestamp()
-                .setFooter({
-                    text: 'Made by Joystoss - Verify Trade Details'
-                });
-
             const roleRow = this.createRoleRow();
 
-            this.roleEmbed = await this.thread.send({
-                embeds: [selectEmbed],
-                components: [roleRow],
-                ephemeral: true
-            });
+            this.roleEmbed = await this.thread.send(this.roleCard().row(roleRow).msg());
             await this.saveState();
 
             await this.startRoleCol();
@@ -721,19 +688,17 @@ If any information is incorrect, contact support immediately.\`\`**`
                         if (this.done) return;
                         this.done = true;
                         const unixTime = Math.floor(Date.now() / 1000) + 15;
-                        const cancelEmbed = new EmbedBuilder()
-                            .setTitle('⚠ Cancel Trade')
-                            .setDescription(`Click the button below to reopen the ticket. The trade will be cancelled if you don't respond within <t:${unixTime}:R>`)
-                            .setColor(0xFF3131);
                         const reopenButton = new ButtonBuilder()
                             .setCustomId('reopenTicket')
                             .setLabel(`Reopen`)
                             .setStyle(ButtonStyle.Success);
                         const cancelRow = new ActionRowBuilder().addComponents(reopenButton);
-                        const cancelMessage = await confirmAction.channel.send({
-                            embeds: [cancelEmbed],
-                            components: [cancelRow]
-                        });
+                        const cancelMessage = await confirmAction.channel.send(UI.card(UI.COLORS.danger)
+                            .title('Cancel Trade', E.elite_CautionWarning)
+                            .divider()
+                            .text(`Click the button below to reopen the ticket. The trade will be cancelled if you don't respond within <t:${unixTime}:R>`)
+                            .row(cancelRow)
+                            .msg());
                         const reopenFilter = (btnInteract) => btnInteract.user.id === confirmAction.user.id && btnInteract.customId === 'reopenTicket';
                         const role_col = cancelMessage.createMessageComponentCollector({
                             filter: reopenFilter,
@@ -793,19 +758,14 @@ If any information is incorrect, contact support immediately.\`\`**`
 
 
     async colDealAmt() {
-        const EnterAmount = new EmbedBuilder()
-            .setTitle(`${E.elite_LTC}  Enter Deal Amount`)
-            .setDescription('> **Enter the amount to be sent for the trade.**')
-            .setColor(0xFFFF00)
-            .setFooter({
-                text: 'Made by Joystoss '
-            });
+        const amountCard = UI.card(UI.COLORS.warn)
+            .text(`<@${this.sender}>`)
+            .title('Enter Deal Amount', E.elite_LTC)
+            .divider()
+            .text(`> **Enter the amount to be sent for the trade.**`)
+            .foot('Made by Joystoss', { ts: Math.floor(Date.now() / 1000) });
 
-        await this.thread.send({
-            content: `<@${this.sender}>`,
-            embeds: [EnterAmount],
-            ephemeral: true
-        });
+        await this.thread.send(amountCard.msg({ allowPing: true }));
 
         const message_filter = response => response.author.id === this.sender;
         const amount_collector = this.thread.createMessageCollector({
@@ -864,10 +824,11 @@ If any information is incorrect, contact support immediately.\`\`**`
             this.isProcessing = false;
 
             if (reason == 'time' && collected.size < 1) {
-                await this.thread.send({
-                    embeds: [new EmbedBuilder().setTitle(`> ${E.Cancel}  No amount provided. Trade process cancelled.`).setColor('Red')],
-                    ephemeral: true
-                });
+                await this.thread.send(UI.card(UI.COLORS.danger)
+                    .title('Trade process cancelled', E.Cancel)
+                    .divider()
+                    .text('No amount was provided.')
+                    .msg());
                 await this.thread.setLocked(true)
                 await this.thread.setName('Closed!')
                 await this.thread.delete().catch(error => console.log('Error deleting message:', error));
@@ -882,20 +843,14 @@ If any information is incorrect, contact support immediately.\`\`**`
 
     async confirmDealAmount() {
 
-        const confirm_embed = new EmbedBuilder()
-            .setTitle(`> ${E.check}  Confirm Deal Details `)
-            .setDescription(`**Deal Amount: ${this.dealAmount} ${this.currency}**`)
-            .setColor(0x00b300)
-            .setFooter({
-                text: 'Deal Confirmation - Made by Joystoss'
-            })
-            .setTimestamp();
-
-        this.embed = await this.thread.send({
-            content: `||<@${this.sender}><@${this.receiver}>||`,
-            embeds: [confirm_embed],
-            components: [this.createDealConfirmationRow()]
-        });
+        this.embed = await this.thread.send(UI.card(UI.COLORS.success)
+            .text(`||<@${this.sender}><@${this.receiver}>||`)
+            .title('Confirm Deal Details', E.check)
+            .divider()
+            .field('Deal Amount', `${this.dealAmount} ${this.currency}`)
+            .foot('Deal Confirmation - Made by Joystoss', { ts: Math.floor(Date.now() / 1000) })
+            .row(this.createDealConfirmationRow())
+            .msg({ allowPing: true }));
 
         const filter = (btnInteract) => [this.sender, this.receiver].includes(btnInteract.user.id);
         const amount_collector = this.thread.createMessageComponentCollector({
@@ -933,9 +888,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                             this.ltcaddySent = true;
                             this.disableButtons(this.embed)
                             await this.sendLTCaddy(confirmAction);
-                            await this.embed.edit({
-                                components: []
-                            });
+                            await this.embed.edit(this.dealCard().msg());
                             amount_collector.stop();
                         }
                         break;
@@ -1051,31 +1004,29 @@ If any information is incorrect, contact support immediately.\`\`**`
 
 
     async updateRoleEmbed() {
-        const selectEmbed = new EmbedBuilder()
-            .setTitle(`>  ${E.faq}  Verify Trade Details`)
-            .addFields({
-                name: `${E.fastforward} Sender (LTC Sender)`,
-                value: this.sender ? `<@${this.sender}>` : 'None selected',
-                inline: true
-            }, {
-                name: `${E.fastforward} Receiver (Receiver)`,
-                value: this.receiver ? `<@${this.receiver}>` : 'None selected',
-                inline: true
-            }, {
-                name: `${E.elite_CautionWarning} Important`,
-                value: `**\`\`
-Ensure the trade details are correct before proceeding.
-If any information is incorrect, contact support immediately.\`\`**`
-            })
-            .setColor(0xFFFF00)
-            .setTimestamp()
-            .setFooter({
-                text: ' Made by Joystoss - Verify Trade Details'
-            });;
+        this.roleEmbed.edit(this.roleCard().row(this.createRoleRow()).msg());
+    }
 
-        this.roleEmbed.edit({
-            embeds: [selectEmbed]
-        });
+    /** Shared CV2 builder for the Verify Trade Details panel (send + edits). */
+    roleCard() {
+        return UI.card(UI.COLORS.warn)
+            .title('Verify Trade Details', E.faq)
+            .divider()
+            .fields(
+                [`${E.fastforward}  Sender (LTC Sender)`, this.sender ? `<@${this.sender}>` : 'None selected'],
+                [`${E.fastforward}  Receiver (Receiver)`, this.receiver ? `<@${this.receiver}>` : 'None selected'],
+            )
+            .field(`${E.elite_CautionWarning}  Important`, `Ensure the trade details are correct before proceeding.\nIf any information is incorrect, contact support immediately.`)
+            .foot('Made by Joystoss - Verify Trade Details', { ts: Math.floor(Date.now() / 1000) });
+    }
+
+    /** Shared CV2 builder for the Deal Confirmation card (with or without buttons). */
+    dealCard() {
+        return UI.card(UI.COLORS.success)
+            .title('Confirm Deal Details', E.check)
+            .divider()
+            .field('Deal Amount', `${this.dealAmount} ${this.currency}`)
+            .foot('Deal Confirmation - Made by Joystoss', { ts: Math.floor(Date.now() / 1000) });
     }
 
 
@@ -2005,28 +1956,14 @@ If any information is incorrect, contact support immediately.\`\`**`
 
 
     disableButtons = async (message) => {
-        const updatedComponents = message.components.map(row => {
-            const disabledRow = new ActionRowBuilder().addComponents(
-                row.components.map(component => ButtonBuilder.from(component).setDisabled(true))
-            );
-            return disabledRow;
-        });
-
         await message.edit({
-            components: updatedComponents
+            components: UI.withButtonState(message.components, true),
         });
     };
 
     enableButtons = async (message) => {
-        const updatedComponents = message.components.map(row => {
-            const disabledRow = new ActionRowBuilder().addComponents(
-                row.components.map(component => ButtonBuilder.from(component).setDisabled(false))
-            );
-            return disabledRow;
-        });
-
         await message.edit({
-            components: updatedComponents
+            components: UI.withButtonState(message.components, false),
         });
     };
 
@@ -2504,24 +2441,14 @@ If any information is incorrect, contact support immediately.\`\`**`
 
 
     disableButtons(msg) {
-        const components = msg.components.map(row => {
-            const actionRow = ActionRowBuilder.from(row);
-            actionRow.components.forEach(component => component.setDisabled(true));
-            return actionRow;
-        });
         return msg.edit({
-            components
+            components: UI.withButtonState(msg.components, true),
         });
     }
 
     enableButtons(msg) {
-        const components = msg.components.map(row => {
-            const actionRow = ActionRowBuilder.from(row);
-            actionRow.components.forEach(component => component.setDisabled(false));
-            return actionRow;
-        });
         return msg.edit({
-            components
+            components: UI.withButtonState(msg.components, false),
         });
     }
 
