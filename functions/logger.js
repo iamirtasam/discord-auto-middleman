@@ -2,6 +2,7 @@ const {
     EmbedBuilder,
     WebhookClient
 } = require("discord.js");
+const E = require('./emojis');
 const discordTranscripts = require('discord-html-transcripts');
 
 const toml = require('toml');
@@ -17,7 +18,7 @@ module.exports = async (log, content) => {
     switch (log) {
         case "transcript":
             logEmbed = new EmbedBuilder()
-                .setTitle("<:zeldra_terms:1493286506171863161> Transcript")
+                .setTitle(`${E.zeldra_terms} Transcript`)
                 .addFields({
                     name: 'Sender',
                     value: `<@${content.sender}>`,
@@ -47,7 +48,7 @@ module.exports = async (log, content) => {
             let amount = parseFloat(content.amount);
 
             logEmbed = new EmbedBuilder()
-                .setTitle(`<a:green_tick:1481611281415798871>  LiteCoin Trade Completed`)
+                .setTitle(`${E.green_tick}  LiteCoin Trade Completed`)
                 .setColor('0x00b300')
                 .addFields({
                     name: 'Sender',
