@@ -8,6 +8,7 @@ const {
     TextInputStyle,
     InteractionType
 } = require('discord.js');
+const E = require('./emojis');
 const panelModel = require('../database/panel.js');
 
 const password = "StrongPassword";
@@ -50,23 +51,23 @@ module.exports.createPanel = async (client, interaction) => {
         const embed = new EmbedBuilder()
         .setColor("#1ec42c")
         .setDescription(`
-# <:Money:1494053090863612024>  Novex AutoMM
+# ${E.Money}  Novex AutoMM
   
-<:sv:1494053088691228802>  **What is Auto Middle Man ?**
+${E.sv}  **What is Auto Middle Man ?**
 
--  <:8539838:1494053085474062497>  As an intermediary system capable of securely holding cryptocurrency on your behalf, it automates the process, helping you save time and ensuring safer transactions with counterparties.
+-  ${E.select}  As an intermediary system capable of securely holding cryptocurrency on your behalf, it automates the process, helping you save time and ensuring safer transactions with counterparties.
 
-<:zeldra_nitro:1494053083221590196>  **Features:**
-<a:1404805419838472225:1494053104650555505> Supports LTC only.
-<a:1404805419838472225:1494053104650555505> Available 24/7.
-<a:1404805419838472225:1494053104650555505> Easy, fast, efficient, and secure.
+${E.zeldra_nitro}  **Features:**
+${E.loader} Supports LTC only.
+${E.loader} Available 24/7.
+${E.loader} Easy, fast, efficient, and secure.
 
-### **<:8539838:1494053085474062497>  Is it safe?**
-<:correct:1493286534332416161>  Yes, Only the person who sent the money can send it to the receiver.
-<:correct:1493286534332416161>  The receiver can't take the money without the sender's permission.
-<:correct:1493286534332416161>  And you can contact support if you have any problems.
-<:correct:1493286534332416161>  How the fees work?
-<:correct:1493286534332416161>  When you send the money to the address, the bot will detect the amount and will calculate the fees. The fees are 0.25% of the amount of the deal, in addition to blockchain fees, which are not included in the service fees. The fees are deducted from the amount of the deal when releasing the funds to the seller`);
+### **${E.select}  Is it safe?**
+${E.correct}  Yes, Only the person who sent the money can send it to the receiver.
+${E.correct}  The receiver can't take the money without the sender's permission.
+${E.correct}  And you can contact support if you have any problems.
+${E.correct}  How the fees work?
+${E.correct}  When you send the money to the address, the bot will detect the amount and will calculate the fees. The fees are 0.25% of the amount of the deal, in addition to blockchain fees, which are not included in the service fees. The fees are deducted from the amount of the deal when releasing the funds to the seller`);
 
         const panelChannel = await client.channels.fetch(panel_channel_id);
         if (!panelChannel) return console.log("Panel channel not found");
@@ -91,9 +92,9 @@ module.exports.createPanel = async (client, interaction) => {
 
         const statusMessage = await panelChannel.send({
             embeds: [new EmbedBuilder()
-                .setTitle('<:refresh:1494053077450490058>  Status')
+                .setTitle(`${E.refresh}  Status`)
                 .setColor("#1ec42c")
-                .setDescription('**``The AutoMM is currently operational``<:1390952506346963016:1494053058668396735>**')]
+                .setDescription(`**\`\`The AutoMM is currently operational\`\`${E.check}**`)]
         });
 
         const controlMessage = await controlChannel.send({
