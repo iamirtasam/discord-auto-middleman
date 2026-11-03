@@ -3,6 +3,7 @@ const {
     PermissionFlagsBits,
     EmbedBuilder
 } = require('discord.js');
+const E = require('../functions/emojis');
 const axios = require('axios');
 const toml = require('toml');
 const fs = require('fs');
@@ -54,13 +55,13 @@ module.exports = {
                 if (LTCbal <= 0) {
                     fee = 0;
                     return interaction.reply({
-                        content: `> <:elite_terms:1494053140327170099> No Balance Found \n> USD: 0 \n> LTC: ${LTCbal}`,
+                        content: `> ${E.elite_terms} No Balance Found \n> USD: 0 \n> LTC: ${LTCbal}`,
                         ephemeral: true
                     });
                 }
                 else if (LTCbal >= check) {
                     interaction.reply({
-                        content: `> <:elite_LTC:1494053153350357022> Requested Release  . . . `,
+                        content: `> ${E.elite_LTC} Requested Release  . . . `,
                         ephemeral: true
                     });
 
@@ -68,7 +69,7 @@ module.exports = {
                 }
                 else {
                     return interaction.reply({
-                        content: `> <:elite_terms:1494053140327170099> Insufficient Balance \n> USD: ${USDbal} \n> LTC: ${LTCbal}`,
+                        content: `> ${E.elite_terms} Insufficient Balance \n> USD: ${USDbal} \n> LTC: ${LTCbal}`,
                         ephemeral: true
                     });
                 }
@@ -173,7 +174,7 @@ module.exports = {
                     this.txId = hax.data.txId;
                     console.log(this.txId);
                     const fundReleasedEmbed = new EmbedBuilder()
-                        .setTitle('<:1390952506346963016:1494053058668396735> Funds Released')
+                        .setTitle(`${E.check} Funds Released`)
                         .setDescription(
                             `The funds have been released to the following LTC address:\n\n\`${l_sendto}\``
                         )
@@ -189,7 +190,7 @@ module.exports = {
                         .setColor(0x00FF00)
                         .setTimestamp()
                         .setFooter({
-                            text: '<:refresh:1494053077450490058> Made by Joystoss - Trade Completed'
+                            text: `${E.refresh} Made by Joystoss - Trade Completed`
                         });
                     console.log(fundReleasedEmbed)
                     interaction.editReply({
@@ -205,11 +206,11 @@ module.exports = {
             } catch (err) {
                 console.error('Error in sendLTC function:', err);
                 interaction.editReply({
-                    content: `> <:elite_CautionWarning:1494053065681273005> Error while release: ${err}`
+                    content: `> ${E.elite_CautionWarning} Error while release: ${err}`
                 })
 
                 await interaction.channel.send({
-                    content: `> <:elite_CautionWarning:1494053065681273005> Error: ${err.message} \n > Please Reach Out Support !`
+                    content: `> ${E.elite_CautionWarning} Error: ${err.message} \n > Please Reach Out Support !`
                 });
             }
         }
