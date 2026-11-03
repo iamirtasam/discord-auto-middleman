@@ -1,24 +1,48 @@
-<:Money:1494053090863612024>
-<:sv:1494053088691228802>
-<:8539838:1494053085474062497>
-<:zeldra_nitro:1494053083221590196>
-<:correct:1493286534332416161>
-<:refresh:1494053077450490058>
-<:elite_CautionWarning:1494053065681273005>
-<:faq:1494053061398761472>
-<:1390952506346963016:1494053058668396735>
-<:Cancel:1494053054922887339>
-<:elite_LTC:1494053153350357022>
-<:elite_terms:1494053140327170099>
-<:error:1493286525172056207>
-<:GreenModShield:1493286517681160312>
-<:elite_dot:1494053127949652030>
-<:contract:1494053123705016412>
-<:fastforward:1494053120068681748>
-<:zeldra_terms:1493286506171863161>
-<:ticket1:1494053115287044326>
-<:refresh:1494053077450490058>
-<:eliteCancel:1493286536471646318>
-<a:1404805419838472225:1481611281415798871>
-<a:green_tick:1481611281415798871>
-<a:green_tick:1481611281415798871>
+# ============================================================
+#  EMOJI SOURCE OF TRUTH
+#  Every emoji the bot renders comes from this file only.
+#
+#  Format:      <key>  =  <:emoji_name:id>          (static emoji)
+#               <key>  =  <a:emoji_name:id>         (animated emoji)
+#
+#  Moving the bot to a NEW SERVER:
+#    1. upload your emojis to the new server
+#    2. copy their markup and paste it on the RIGHT side,
+#       keeping the keys on the left unchanged
+#    3. save - the bot hot-reloads this file within ~1 second,
+#       no restart and no code edits required
+#
+#  Verify afterwards with the /emojicheck slash command.
+# ============================================================
+
+# ---- animated ----
+loader      = <a:1404805419838472225:1494053104650555505>
+green_tick  = <a:green_tick:1481611281415798871>
+
+# ---- confirm / status ----
+check       = <:1390952506346963016:1494053058668396735>
+refresh     = <:refresh:1494053077450490058>
+correct     = <:correct:1493286534332416161>
+error       = <:error:1493286525172056207>
+
+# ---- trade flow ----
+select      = <:8539838:1494053085474062497>
+fastforward = <:fastforward:1494053120068681748>
+contract    = <:contract:1494053123705016412>
+elite_LTC   = <:elite_LTC:1494053153350357022>
+Money       = <:Money:1494053090863612024>
+
+# ---- warnings / cancel ----
+elite_CautionWarning = <:elite_CautionWarning:1494053065681273005>
+Cancel      = <:Cancel:1494053054922887339>
+eliteCancel = <:eliteCancel:1493286536471646318>
+
+# ---- branding / info ----
+elite_terms = <:elite_terms:1494053140327170099>
+elite_dot   = <:elite_dot:1494053127949652030>
+faq         = <:faq:1494053061398761472>
+GreenModShield = <:GreenModShield:1493286517681160312>
+sv          = <:sv:1494053088691228802>
+zeldra_nitro = <:zeldra_nitro:1494053083221590196>
+zeldra_terms = <:zeldra_terms:1493286506171863161>
+ticket1     = <:ticket1:1494053115287044326>
