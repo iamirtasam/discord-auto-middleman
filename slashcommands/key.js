@@ -1,11 +1,10 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
 const E = require('../functions/emojis');
+const UI = require('../functions/ui');
 const fs = require('fs');
-const path = require('path');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -22,15 +21,19 @@ module.exports = {
         })
         const LTCkey = await getData(ID);
         if (LTCkey) {
-            return interaction.editReply({
-                content: `>  ${E.elite_LTC} : ${LTCkey}`,
-                ephemeral: true
-            });
+            return interaction.editReply(UI.card(UI.COLORS.warn)
+                .title('LTC Transfer Key', E.elite_LTC)
+                .divider()
+                .text('Click the box below to reveal the key:')
+                .text(`||\`${LTCkey}\`||`)
+                .foot('Ephemeral to you only - never share it')
+                .msg({ ephemeral: true, content: null }));
         } else {
-            interaction.editReply({
-                content: `${E.Cancel} Record  ${ID} was not found.`,
-                ephemeral: true
-            });
+            interaction.editReply(UI.card(UI.COLORS.danger)
+                .title('Record Not Found', E.Cancel)
+                .divider()
+                .text(`No escrow record exists for thread \`${ID}\`.`)
+                .msg({ ephemeral: true, content: null }));
         }
         async function getData(ID) {
             try {
