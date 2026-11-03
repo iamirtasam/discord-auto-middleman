@@ -1,14 +1,14 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
 const E = require('../functions/emojis');
+const UI = require('../functions/ui');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('emojicheck')
-        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .setDescription('Render every emoji from emojis.txt to verify them'),
 
     async execute(client, interaction) {
@@ -26,12 +26,11 @@ module.exports = {
         return `${E.get(key)} \`${key}\`${pending} (${i + 1}/${keys.length})`;
     });
 
-        const embed = new EmbedBuilder()
-            .setTitle(`${E.refresh} Emoji Check - ${keys.length} emojis from emojis.txt`)
-            .setColor(0x00BFFF)
-            .setTimestamp();
+        const card = UI.card(0x00BFFF)
+            .title(`Emoji Check - ${keys.length} emojis`, E.refresh)
+            .divider();
 
-        // Discord limits: 25 fields x 1024 chars - chunk defensively
+        // CV2 text budget: 4000 total - chunk defensively and show the first 3 blocks
         const chunks = [];
         let cur = [];
         let curLen = 0;
@@ -47,13 +46,11 @@ module.exports = {
         }
         if (cur.length > 0) chunks.push(cur.join('\n'));
 
-        chunks.slice(0, 25).forEach((chunk, i) => {
-            embed.addFields({ name: `Page ${i + 1}`, value: chunk });
-        });
-        if (chunks.length > 25) {
-            embed.setFooter({ text: `${chunks.length - 25} more pages not shown - emojis exceed embed limit` });
+        chunks.slice(0, 3).forEach((chunk) => card.text(chunk));
+        if (chunks.length > 3) {
+            card.foot(`${chunks.length - 3} more blocks not shown - emojis exceed the display limit`);
         }
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply(card.msg({ content: null }));
     },
 };
