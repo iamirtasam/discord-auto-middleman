@@ -21,7 +21,10 @@ module.exports = {
             });
         }
 
-        const lines = keys.map((key, i) => `${E.get(key)} \`${key}\` (${i + 1}/${keys.length})`);
+        const lines = keys.map((key, i) => {
+        const pending = E.pendingSources().has(key) ? ' (pending upload)' : '';
+        return `${E.get(key)} \`${key}\`${pending} (${i + 1}/${keys.length})`;
+    });
 
         const embed = new EmbedBuilder()
             .setTitle(`${E.refresh} Emoji Check - ${keys.length} emojis from emojis.txt`)
