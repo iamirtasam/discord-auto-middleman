@@ -1,0 +1,17 @@
+# ==== SECRETS — NEVER COMMIT ====
+config.toml
+.env
+
+# Wallet private keys are stored here by the bot — never commit
+trades.json
+
+# Logs
+combined.log
+*.log
+
+# ==== Dependencies ====
+node_modules/
+
+# ==== Archives / backups / leftovers ====
+*.zip
+*.old

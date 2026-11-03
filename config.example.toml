@@ -1,0 +1,39 @@
+#[Bot Token]
+token = 'YOUR_DISCORD_BOT_TOKEN'
+
+#[GuildID]
+guildID = 'YOUR_GUILD_ID'
+
+#[Thread Channel]
+thread_channel = 'YOUR_THREAD_CHANNEL_ID'
+
+#[MongoDB URL]
+mongoURL = 'YOUR_MONGODB_CONNECTION_STRING'
+
+#[WEBHOOKS]
+payment_webhook = 'YOUR_PAYMENT_LOG_WEBHOOK_URL'
+transcript_webhook = 'YOUR_TRANSCRIPT_WEBHOOK_URL'
+support_webhook = 'YOUR_SUPPORT_WEBHOOK_URL'
+
+#[Admins]
+admin = ["ADMIN_USER_ID_1", "ADMIN_USER_ID_2"]
+
+#[tatum]
+apikey = 'YOUR_TATUM_API_KEY'
+xpub = 'YOUR_TATUM_XPUB'
+mnemonic = 'YOUR_12_WORD_MNEMONIC'
+
+#[blockcypher]
+apiToken = [
+    'YOUR_BLOCKCYPHER_TOKEN_1',
+    '',
+    '',
+    '',
+    ''
+]
+
+#[SYSTEM]
+timeout = '60000' # 60 seconds
+timeout2 = '20000' # 20 seconds
+client_role = 'YOUR_CLIENT_ROLE_ID'
+proxy = 'user:pass@host:port' # optional rotating proxy
