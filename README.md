@@ -20,6 +20,17 @@ A Discord bot that acts as an **automated Litecoin (LTC) middleman / escrow serv
 - **CryptoCompare API** — USD/EUR ⇄ LTC rates
 - **MongoDB** (mongoose) — panel storage • **trades.json** — per-thread escrow state persistence
 
+## Emojis (single-file config)
+
+All emoji markup lives in **`emojis.txt`** — the code never hard-codes emoji. Keys are referenced everywhere as `E.<key>` (via `functions/emojis.js`), e.g. `${E.Money}`, and the file is **hot-reloaded within ~1s of saving** (no restart).
+
+```toml
+Money = <:Money:1494053090863612024>
+check = <:1390952506346963016:1494053058668396735>   # animated: <a:name:id>
+```
+
+**Moving to a new server?** Upload your emojis there → paste each emoji's markup on the right side of its line → save. Keys on the left never change, so zero code edits are needed. Then run `/emojicheck` to confirm every key still renders.
+
 ## Setup
 
 ```bash
