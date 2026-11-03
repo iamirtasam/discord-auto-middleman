@@ -3,6 +3,7 @@ const {
     PermissionFlagsBits,
     EmbedBuilder
 } = require('discord.js');
+const E = require('../functions/emojis');
 const axios = require('axios');
 const toml = require('toml');
 const fs = require('fs');
@@ -24,7 +25,7 @@ module.exports = {
         this.ltckey = null
 
         await interaction.reply({
-            content: `> <:refresh:1494053077450490058> Processing .  .  .  .`,
+            content: `> ${E.refresh} Processing .  .  .  .`,
             ephemeral: true
         })
 
@@ -36,13 +37,13 @@ module.exports = {
             if (LTCbal <= 0) {
 
                 return interaction.editReply({
-                    content: `> <:elite_terms:1494053140327170099> No Balance Found \n> ${this.currency} : 0 \n> LTC : ${LTCbal.toFixed(8)}`,
+                    content: `> ${E.elite_terms} No Balance Found \n> ${this.currency} : 0 \n> LTC : ${LTCbal.toFixed(8)}`,
                     ephemeral: true
                 })
             }
             let USDbal = await ltcToUsd(LTCbal)
             return interaction.editReply({
-                content: `<:elite_terms:1494053140327170099>  Balance Found \n> ${this.currency} ${USDbal} : 0 \n> LTC : ${LTCbal.toFixed(8)}`,
+                content: `${E.elite_terms}  Balance Found \n> ${this.currency} ${USDbal} : 0 \n> LTC : ${LTCbal.toFixed(8)}`,
                 ephemeral: true
             })
         }
