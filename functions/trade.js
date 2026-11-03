@@ -176,10 +176,13 @@ async chooseCurrency(message, sender, receiver) {
     let senderConfirmed = false;
     let receiverConfirmed = false;
 
-    const embed = new EmbedBuilder()
-        .setColor(0x00BFFF)
-        .setTitle(`${E.elite_LTC}  Choose your currency`)
-        .setDescription('**Please select your preferred currency:**');
+    const currencyCard = (text, buttonsRow) => {
+        const builder = UI.card(0x00BFFF)
+            .title('Choose your currency', E.elite_LTC)
+            .divider()
+            .text(text);
+        return buttonsRow ? builder.row(buttonsRow) : builder;
+    };
 
     const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
@@ -193,7 +196,7 @@ async chooseCurrency(message, sender, receiver) {
             .setStyle(ButtonStyle.Secondary)
     );
 
-    const sentMessage = await this.thread.send({ embeds: [embed], components: [row] });
+    const sentMessage = await this.thread.send(currencyCard('**Please select your preferred currency:**', row).msg());
 
     const filter = i => i.user.id === this.sender || i.user.id === this.receiver;
     const collector = sentMessage.createMessageComponentCollector({ filter, time: 21600000 });
@@ -215,15 +218,7 @@ async chooseCurrency(message, sender, receiver) {
                     .setDisabled(true)
             );
 
-            await interaction.update({
-                embeds: [embed.setDescription(`Both users need to confirm the currency: ${selectedCurrency}`)],
-                components: [disabledRow],
-            });
-
-            const confirmEmbed = new EmbedBuilder()
-                .setColor(0x303238)
-                .setTitle(`${E.elite_terms}  Confirm your selection`)
-                .setDescription(`**Both users must confirm the selected currency: ${selectedCurrency}**`);
+            await interaction.update(currencyCard(`Both users need to confirm the currency: ${selectedCurrency}`, disabledRow).msg());
 
             const confirmRow = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
@@ -232,7 +227,15 @@ async chooseCurrency(message, sender, receiver) {
                     .setStyle(ButtonStyle.Secondary)
             );
 
-            const confirmMessage = await this.thread.send({ embeds: [confirmEmbed], components: [confirmRow] });
+            const confirmCard = (text, buttonsRow) => {
+                const builder = UI.card(0x303238)
+                    .title('Confirm your selection', E.elite_terms)
+                    .divider()
+                    .text(text);
+                return buttonsRow ? builder.row(buttonsRow) : builder;
+            };
+
+            const confirmMessage = await this.thread.send(confirmCard(`**Both users must confirm the selected currency: ${selectedCurrency}**`, confirmRow).msg());
 
             const confirmCollector = confirmMessage.createMessageComponentCollector({ filter, time: 21600000 });
 
@@ -256,10 +259,7 @@ async chooseCurrency(message, sender, receiver) {
                             .setDisabled(true)
                     );
 
-                    await confirmInteraction.update({
-                        embeds: [confirmEmbed.setDescription(`Both users confirmed. Currency updated to ${selectedCurrency}.`)],
-                        components: [disabledConfirmRow],
-                    });
+                    await confirmInteraction.update(confirmCard(`Both users confirmed. Currency updated to ${selectedCurrency}.`, disabledConfirmRow).msg());
 
                     this.currency = selectedCurrency;
 		    this.colDealAmt();
@@ -270,10 +270,7 @@ async chooseCurrency(message, sender, receiver) {
 
             confirmCollector.on('end', async collected => {
                 if (!(senderConfirmed && receiverConfirmed)) {
-                    await confirmMessage.edit({
-                        embeds: [confirmEmbed.setDescription('Confirmation timed out or was not completed.')],
-                        components: [],
-                    });
+                    await confirmMessage.edit(confirmCard('Confirmation timed out or was not completed.').msg());
                 }
             });
         } else {
@@ -283,10 +280,7 @@ async chooseCurrency(message, sender, receiver) {
 
     collector.on('end', async collected => {
         if (!selectedCurrency) {
-            await sentMessage.edit({
-                embeds: [embed.setDescription('No currency was selected.')],
-                components: [],
-            });
+            await sentMessage.edit(currencyCard('No currency was selected.').msg());
         }
     });
 }
@@ -302,22 +296,6 @@ async chooseCurrency(message, sender, receiver) {
 
     async start(msg) {
         try {
-            const embedNew = new EmbedBuilder()
-                .setTitle(`> ${E.elite_terms}  Start a New Trade`)
-                .setColor("#FFFF00")
-                .setDescription(
-                    '> **Let\'s get started! To begin a new trade, please provide the Discord user ID or mention (@username) of your trading partner.**'
-                )
-                .addFields({
-                    name: 'Example',
-                    value: `<@1394441458873794814> or 1394441458873794814`
-                })
-                .setColor(0xFFFF00)
-                .setFooter({
-                    text: 'Enter the user ID or mention'
-                })
-                .setTimestamp();
-
             const newHaz = new ButtonBuilder()
                 .setCustomId('id_help')
                 .setLabel('Help')
@@ -326,11 +304,15 @@ async chooseCurrency(message, sender, receiver) {
 
             const newCom = new ActionRowBuilder().addComponents(newHaz);
 
-            this.promptMessage = await msg.edit({
-                embeds: [embedNew],
-                components: [newCom],
-                ephemeral: true
-            });
+            const startCard = UI.card(UI.COLORS.warn)
+                .title('Start a New Trade', E.elite_terms)
+                .divider()
+                .text(`> **Let's get started! To begin a new trade, please provide the Discord user ID or mention (@username) of your trading partner.**`)
+                .field('Example', `<@1394441458873794814> or 1394441458873794814`)
+                .foot('Enter the user ID or mention', { ts: Date.now() / 1000 })
+                .row(newCom);
+
+            this.promptMessage = await msg.edit(startCard.msg());
 
             queueMicrotask(() => this.askUserid());
         } catch (error) {
@@ -339,13 +321,12 @@ async chooseCurrency(message, sender, receiver) {
 
 
         await new Promise(resolve => setTimeout(resolve, 158400000));
-const longEmbed = new EmbedBuilder()
-	.setColor(0xFF0000)
-	.setTitle('Warning')
-	.setDescription('This trade will be closed and deleted in 4 hours from now. If there is any reason this trade should not be closed in 4 hours please contact support fast using /help.')
-	.setTimestamp()
-
-await this.thread.send({ embeds: [longEmbed] });
+await this.thread.send(UI.card(UI.COLORS.danger)
+	.title('Warning', E.elite_CautionWarning)
+	.divider()
+	.text('This trade will be closed and deleted in 4 hours from now. If there is any reason this trade should not be closed in 4 hours please contact support fast using /help.')
+	.foot('Scheduled auto-close', { ts: Math.floor(Date.now() / 1000) + 4 * 60 * 60 })
+	.msg());
 
 
 
