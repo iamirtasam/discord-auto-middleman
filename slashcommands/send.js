@@ -1,9 +1,9 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
 const E = require('../functions/emojis');
+const UI = require('../functions/ui');
 const axios = require('axios');
 const toml = require('toml');
 const fs = require('fs');
@@ -146,32 +146,17 @@ module.exports = {
 
                     this.txId = hax.data.txId;
                     console.log(this.txId);
-                    const fundReleasedEmbed = new EmbedBuilder()
-                        .setTitle(`${E.check} Funds Released`)
-                        .setDescription(
-                            `The funds have been released to the following LTC address:\n\n\`${address}\``
-                        )
-                        .addFields({
-                            name: 'Transaction ID',
-                            value: `[${this.txId}](https://live.blockcypher.com/ltc/tx/${this.txId})`,
-                            inline: true
-                        }, {
-                            name: 'Timestamp',
-                            value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
-                            inline: true
-                        })
-                        .setColor(0x00FF00)
-                        .setTimestamp()
-                        .setFooter({
-                            text: `${E.refresh} Made by Joystoss - Trade Completed`
-                        });
-                    console.log(fundReleasedEmbed)
-                    interaction.editReply({
-                        embeds: [fundReleasedEmbed]
-                    })
-                    await interaction.channel.send({
-                        embeds: [fundReleasedEmbed]
-                    });
+                    const releasedCard = () => UI.card(UI.COLORS.success)
+                        .title('Funds Released', E.check)
+                        .divider()
+                        .text('The funds have been released to the following LTC address:\n\n`\n' + address + '\n`')
+                        .divider()
+                        .field('Transaction ID', `[${this.txId}](https://live.blockcypher.com/ltc/tx/${this.txId})`)
+                        .field('Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`)
+                        .foot(`${E.refresh} Made by Joystoss - Trade Completed`);
+                    console.log('released card built')
+                    interaction.editReply(releasedCard().msg({ content: null }))
+                    await interaction.channel.send(releasedCard().msg());
                 } catch (err) {
                     console.error('Error sending LTC:', err);
                     throw new Error('Failed to send LTC');
