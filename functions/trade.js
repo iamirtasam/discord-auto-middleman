@@ -4,6 +4,7 @@ const {
     ButtonBuilder,
     ButtonStyle
 } = require('discord.js');
+const E = require('./emojis');
 const toml = require('toml');
 const fs = require('fs');
 const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
@@ -177,7 +178,7 @@ async chooseCurrency(message, sender, receiver) {
 
     const embed = new EmbedBuilder()
         .setColor(0x00BFFF)
-        .setTitle('<:elite_LTC:1494053153350357022>  Choose your currency')
+        .setTitle(`${E.elite_LTC}  Choose your currency`)
         .setDescription('**Please select your preferred currency:**');
 
     const row = new ActionRowBuilder().addComponents(
@@ -221,7 +222,7 @@ async chooseCurrency(message, sender, receiver) {
 
             const confirmEmbed = new EmbedBuilder()
                 .setColor(0x303238)
-                .setTitle('<:elite_terms:1494053140327170099>  Confirm your selection')
+                .setTitle(`${E.elite_terms}  Confirm your selection`)
                 .setDescription(`**Both users must confirm the selected currency: ${selectedCurrency}**`);
 
             const confirmRow = new ActionRowBuilder().addComponents(
@@ -238,10 +239,10 @@ async chooseCurrency(message, sender, receiver) {
             confirmCollector.on('collect', async confirmInteraction => {
                 if (confirmInteraction.user.id === this.sender) {
                     senderConfirmed = true;
-                    await this.thread.send(`**<:1390952506346963016:1494053058668396735>  <@${this.sender}> confirmed the currency.**`);
+                    await this.thread.send(`**${E.check}  <@${this.sender}> confirmed the currency.**`);
                 } else if (confirmInteraction.user.id === this.receiver) {
                     receiverConfirmed = true;
-                    await this.thread.send(`**<:1390952506346963016:1494053058668396735>  <@${this.receiver}> confirmed the currency.**`);
+                    await this.thread.send(`**${E.check}  <@${this.receiver}> confirmed the currency.**`);
                 }
 
                 if (senderConfirmed && receiverConfirmed) {
@@ -302,7 +303,7 @@ async chooseCurrency(message, sender, receiver) {
     async start(msg) {
         try {
             const embedNew = new EmbedBuilder()
-                .setTitle('> <:elite_terms:1494053140327170099>  Start a New Trade')
+                .setTitle(`> ${E.elite_terms}  Start a New Trade`)
                 .setColor("#FFFF00")
                 .setDescription(
                     '> **Let\'s get started! To begin a new trade, please provide the Discord user ID or mention (@username) of your trading partner.**'
@@ -320,7 +321,7 @@ async chooseCurrency(message, sender, receiver) {
             const newHaz = new ButtonBuilder()
                 .setCustomId('id_help')
                 .setLabel('Help')
-                .setEmoji('<:error:1493286525172056207>')
+                .setEmoji(`${E.error}`)
                 .setStyle(ButtonStyle.Secondary);
 
             const newCom = new ActionRowBuilder().addComponents(newHaz);
@@ -471,15 +472,15 @@ await this.thread.send({ embeds: [longEmbed] });
         this.progress = 'Generated Thread Key';
 
         const xembed = new EmbedBuilder()
-            .setTitle('<:sv:1494053088691228802>  Welcome to Made by Joystoss')
-            .setDescription(`**<:GreenModShield:1493286517681160312>  Made by Joystoss is a secure platform for conducting transactions with confidence. We provide:
-                <:elite_dot:1494053127949652030> Neutral third-party escrow service**
-                <:elite_dot:1494053127949652030> Protection for buyers and sellers
-                <:elite_dot:1494053127949652030> Seamless and streamlined experience`)
+            .setTitle(`${E.sv}  Welcome to Made by Joystoss`)
+            .setDescription(`**${E.GreenModShield}  Made by Joystoss is a secure platform for conducting transactions with confidence. We provide:
+                ${E.elite_dot} Neutral third-party escrow service**
+                ${E.elite_dot} Protection for buyers and sellers
+                ${E.elite_dot} Seamless and streamlined experience`)
             .addFields(
-                { name: '<:elite_CautionWarning:1494053065681273005> Important Instructions', value: '<:elite_dot:1494053127949652030> **Do not release funds until you have received the product or service as described.**\n<:elite_dot:1494053127949652030> **If the item is not as described, contact our support team immediately.**' },
-                { name: '<:faq:1494053061398761472> Trade Details', value: `**Date:** <t:${Math.floor(Date.now() / 1000)}:F>\n**Trade Owner:** <@${this.interaction.user.id}>` },
-                { name: '<:contract:1494053123705016412> Key', value: `||${this.index}||` }
+                { name: `${E.elite_CautionWarning} Important Instructions`, value: `${E.elite_dot} **Do not release funds until you have received the product or service as described.**\n${E.elite_dot} **If the item is not as described, contact our support team immediately.**` },
+                { name: `${E.faq} Trade Details`, value: `**Date:** <t:${Math.floor(Date.now() / 1000)}:F>\n**Trade Owner:** <@${this.interaction.user.id}>` },
+                { name: `${E.contract} Key`, value: `||${this.index}||` }
             )
             .setColor(0xFFFF00)
             .setTimestamp()
@@ -512,17 +513,17 @@ await this.thread.send({ embeds: [longEmbed] });
     async initRoleSel() {
         try {
             const selectEmbed = new EmbedBuilder()
-                .setTitle('>  <:faq:1494053061398761472>  Verify Trade Details')
+                .setTitle(`>  ${E.faq}  Verify Trade Details`)
                 .addFields({
-                    name: '<:fastforward:1494053120068681748> Sender (LTC sender)',
+                    name: `${E.fastforward} Sender (LTC sender)`,
                     value: this.sender ? `<@${this.sender}>` : 'None selected',
                     inline: true
                 }, {
-                    name: '<:fastforward:1494053120068681748> Receiver (Receiver)',
+                    name: `${E.fastforward} Receiver (Receiver)`,
                     value: this.receiver ? `<@${this.receiver}>` : 'None selected',
                     inline: true
                 }, {
-                    name: '<:elite_CautionWarning:1494053065681273005> Important',
+                    name: `${E.elite_CautionWarning} Important`,
                     value: `**\`\`
 Ensure the trade details are correct before proceeding.
 If any information is incorrect, contact support immediately.\`\`**`
@@ -691,14 +692,14 @@ If any information is incorrect, contact support immediately.\`\`**`
                         if (userId === this.sender) {
                             roles_Sender.add(this.sender);
                             await this.thread.send({
-                                content: `> <@${this.sender}> <:1390952506346963016:1494053058668396735>  Authorized as Sender`,
+                                content: `> <@${this.sender}> ${E.check}  Authorized as Sender`,
                                 ephemeral: true
                             });
                         }
                         if (userId === this.receiver) {
                             roles_Receiver.add(this.receiver);
                             await this.thread.send({
-                                content: `> <@${this.receiver}> <:1390952506346963016:1494053058668396735>  Authorized as Receiver`,
+                                content: `> <@${this.receiver}> ${E.check}  Authorized as Receiver`,
                                 ephemeral: true
                             });
                         }
@@ -812,7 +813,7 @@ If any information is incorrect, contact support immediately.\`\`**`
 
     async colDealAmt() {
         const EnterAmount = new EmbedBuilder()
-            .setTitle('<:elite_LTC:1494053153350357022>  Enter Deal Amount')
+            .setTitle(`${E.elite_LTC}  Enter Deal Amount`)
             .setDescription('> **Enter the amount to be sent for the trade.**')
             .setColor(0xFFFF00)
             .setFooter({
@@ -869,7 +870,7 @@ If any information is incorrect, contact support immediately.\`\`**`
 
             this.dealAmount = amount;
             await Promise.all([
-                message.react('<a:green_tick:1481611281415798871>'),
+                message.react(`${E.green_tick}`),
                 this.saveState(),
             ]);
 
@@ -883,7 +884,7 @@ If any information is incorrect, contact support immediately.\`\`**`
 
             if (reason == 'time' && collected.size < 1) {
                 await this.thread.send({
-                    embeds: [new EmbedBuilder().setTitle('> <:Cancel:1494053054922887339>  No amount provided. Trade process cancelled.').setColor('Red')],
+                    embeds: [new EmbedBuilder().setTitle(`> ${E.Cancel}  No amount provided. Trade process cancelled.`).setColor('Red')],
                     ephemeral: true
                 });
                 await this.thread.setLocked(true)
@@ -901,7 +902,7 @@ If any information is incorrect, contact support immediately.\`\`**`
     async confirmDealAmount() {
 
         const confirm_embed = new EmbedBuilder()
-            .setTitle('> <:1390952506346963016:1494053058668396735>  Confirm Deal Details ')
+            .setTitle(`> ${E.check}  Confirm Deal Details `)
             .setDescription(`**Deal Amount: ${this.dealAmount} ${this.currency}**`)
             .setColor(0x00b300)
             .setFooter({
@@ -938,12 +939,12 @@ If any information is incorrect, contact support immediately.\`\`**`
                         if (userId === this.sender && !senderConfirmed.has(this.sender)) {
                             senderConfirmed.add(this.sender);
                             await this.thread.send({
-                                content: `> <:1390952506346963016:1494053058668396735>  <@${this.sender}> Confirmed Trade Amount`
+                                content: `> ${E.check}  <@${this.sender}> Confirmed Trade Amount`
                             });
                         } else if (userId === this.receiver && !receiverConfirmed.has(this.receiver)) {
                             receiverConfirmed.add(this.receiver);
                             await this.thread.send({
-                                content: `> <:1390952506346963016:1494053058668396735>  <@${this.receiver}> Confirmed Trade Amount`
+                                content: `> ${E.check}  <@${this.receiver}> Confirmed Trade Amount`
                             });
                         }
 
@@ -1046,13 +1047,13 @@ If any information is incorrect, contact support immediately.\`\`**`
         const senderButton = new ButtonBuilder()
             .setCustomId('selectSender')
             .setLabel('Choose Sender')
-            .setEmoji('<:8539838:1494053085474062497>')
+            .setEmoji(`${E.select}`)
             .setStyle(ButtonStyle.Secondary);
 
         const receiverButton = new ButtonBuilder()
             .setCustomId('selectReceiver')
             .setLabel('Select Receiver')
-            .setEmoji('<:8539838:1494053085474062497>')
+            .setEmoji(`${E.select}`)
             .setStyle(ButtonStyle.Secondary);
 
         const cancelButton = new ButtonBuilder()
@@ -1070,17 +1071,17 @@ If any information is incorrect, contact support immediately.\`\`**`
 
     async updateRoleEmbed() {
         const selectEmbed = new EmbedBuilder()
-            .setTitle('>  <:faq:1494053061398761472>  Verify Trade Details')
+            .setTitle(`>  ${E.faq}  Verify Trade Details`)
             .addFields({
-                name: '<:fastforward:1494053120068681748> Sender (LTC Sender)',
+                name: `${E.fastforward} Sender (LTC Sender)`,
                 value: this.sender ? `<@${this.sender}>` : 'None selected',
                 inline: true
             }, {
-                name: '<:fastforward:1494053120068681748> Receiver (Receiver)',
+                name: `${E.fastforward} Receiver (Receiver)`,
                 value: this.receiver ? `<@${this.receiver}>` : 'None selected',
                 inline: true
             }, {
-                name: '<:elite_CautionWarning:1494053065681273005> Important',
+                name: `${E.elite_CautionWarning} Important`,
                 value: `**\`\`
 Ensure the trade details are correct before proceeding.
 If any information is incorrect, contact support immediately.\`\`**`
@@ -1202,19 +1203,19 @@ If any information is incorrect, contact support immediately.\`\`**`
             }, 10000);
 
             const ltcEmbed = new EmbedBuilder()
-                .setTitle('<:elite_LTC:1494053153350357022>  Payment Invoice')
+                .setTitle(`${E.elite_LTC}  Payment Invoice`)
                 .setColor(0x00b300)
                 .setDescription(`- <@${this.sender}> Please proceed by transferring the agreed-upon funds to the Middleman address specified below.\n- To ensure the accuracy and validation of your payment, it is important to **COPY** and **PASTE** the **EXACT AMOUNT** provided.`)
                 .addFields({
-                    name: '<:elite_terms:1494053140327170099> Address',
+                    name: `${E.elite_terms} Address`,
                     value: `**\`\`${this.addy}\`\`**`,
                     inline: false
                 }, {
-                    name: '<:elite_LTC:1494053153350357022> LTC',
+                    name: `${E.elite_LTC} LTC`,
                     value: `**\`\`${this.ltc_to_receive}\`\`**`,
                     inline: true
                 }, {
-                    name: `<:Money:1494053090863612024> ${this.currency}`,
+                    name: `${E.Money} ${this.currency}`,
                     value: `**\`\`${this.dealAmount}\`\`**`,
                     inline: true
                 })
@@ -1226,13 +1227,13 @@ If any information is incorrect, contact support immediately.\`\`**`
             const pasteButton = new ButtonBuilder()
                 .setCustomId(`paste|${this.addy}|${this.ltc_to_receive}`)
                 .setLabel('Paste')
-                .setEmoji(`<:contract:1494053123705016412>`)
+                .setEmoji(`${E.contract}`)
                 .setStyle(ButtonStyle.Secondary);
 
             const qrButton = new ButtonBuilder()
                 .setCustomId(`qr|${this.addy}|${this.ltc_to_receive}`)
                 .setLabel('Show QR')
-                .setEmoji(`<:elite_terms:1494053140327170099>`)
+                .setEmoji(`${E.elite_terms}`)
                 .setStyle(ButtonStyle.Secondary);
 
             const row = new ActionRowBuilder().addComponents(pasteButton, qrButton);
@@ -1416,7 +1417,7 @@ If any information is incorrect, contact support immediately.\`\`**`
 
                 this.txId = hax.data.txId;
                 const fundReleasedEmbed = new EmbedBuilder()
-                    .setTitle('<:1390952506346963016:1494053058668396735> Funds Released')
+                    .setTitle(`${E.check} Funds Released`)
                     .setDescription(
                         `The funds have been released to the following LTC address:\n\n**\`\`${address}\`\`**`
                     )
@@ -1474,7 +1475,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                         .setStyle(ButtonStyle.Secondary)
                 );
                 const transcript = new EmbedBuilder()
-                    .setTitle('<:ticket1:1494053115287044326> Transcript Manager')
+                    .setTitle(`${E.ticket1} Transcript Manager`)
                     .setDescription(`> Would you like us to send you a transcript of this deal?`)
                     .setColor(0xFFFF00)
 
@@ -1593,7 +1594,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                             components: [{
                                 type: 2,
                                 label: 'Re-scan',
-                                emoji: '<:refresh:1494053077450490058>',
+                                emoji: `${E.refresh}`,
                                 style: 2,
                                 custom_id: 'rescan'
                             },
@@ -1616,7 +1617,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                             this.counter = 0;
                             txidFound = false;
                             this.rescan = await interaction.update({
-                                content: `> <:refresh:1494053077450490058> <@${this.sender}> Requested Rescan`,
+                                content: `> ${E.refresh} <@${this.sender}> Requested Rescan`,
                                 embeds: [],
                                 components: []
                             });
@@ -1628,7 +1629,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                                 this.thread.setLocked(true);
                                 this.thread.setName('Closed!');
                                 this.thread.send({
-                                    content: `> <:eliteCancel:1493286536471646318> <@${this.sender}> Did not respond in time , Closing the trade`
+                                    content: `> ${E.eliteCancel} <@${this.sender}> Did not respond in time , Closing the trade`
                                 });
                                 await new Promise(resolve => setTimeout(resolve, 2000));
                                 this.thread.delete().catch(error => console.log('Error deleting message:', error)); return;
@@ -1637,7 +1638,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                     } catch (error) {
                         if (error.name === 'InteractionCollectorError') {
                             this.thread.send({
-                                content: `> <:Cancel:1494053054922887339> <@${this.sender}> Did not respond in time , Closing the trade`
+                                content: `> ${E.Cancel} <@${this.sender}> Did not respond in time , Closing the trade`
                             });
                             this.thread.setLocked(true);
                             this.thread.setName('Closed!');
@@ -1645,7 +1646,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                             this.thread.delete().catch(error => console.log('Error deleting message:', error)); return;
                         } else {
                             this.thread.send({
-                                content: `> <:Cancel:1494053054922887339> <@${this.sender}> Did not respond in time, Closing the trade`
+                                content: `> ${E.Cancel} <@${this.sender}> Did not respond in time, Closing the trade`
                             });
                             this.thread.setLocked(true);
                             this.thread.setName('Closed!');
@@ -1671,7 +1672,7 @@ If any information is incorrect, contact support immediately.\`\`**`
     async incuff() {
 
         const newE = new EmbedBuilder()
-            .setTitle('<:elite_CautionWarning:1494053065681273005>  Amount Mismatch')
+            .setTitle(`${E.elite_CautionWarning}  Amount Mismatch`)
             .setColor(0xFF0000)
             .setDescription(`<@${this.sender}>, the amount received (${this.receivedAmount} LTC) is less than the expected amount (${this.ltc_to_receive} LTC).`)
             .addFields({
@@ -1716,7 +1717,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                     this.sendMoreCounter++;
 
                     await this.message.edit({
-                        content: `> <:faq:1494053061398761472> ${interaction.user} Decided To Send More Funds!`,
+                        content: `> ${E.faq} ${interaction.user} Decided To Send More Funds!`,
                         components: [],
                         embeds: []
                     });
@@ -1743,7 +1744,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                             components: [],
                             embeds: [
                                 new EmbedBuilder()
-                                    .setTitle('<:elite_CautionWarning:1494053065681273005> Deal Proceeds with Received Amount')
+                                    .setTitle(`${E.elite_CautionWarning} Deal Proceeds with Received Amount`)
                                     .setDescription('Sender continues the deal despite receiving a different LTC amount.')
                                     .addFields({
                                         name: 'Situation',
@@ -1763,7 +1764,7 @@ If any information is incorrect, contact support immediately.\`\`**`
 
                         const embed = new EmbedBuilder()
                             .setColor('Yellow')
-                            .setTitle('<:elite_CautionWarning:1494053065681273005> Trade Notification')
+                            .setTitle(`${E.elite_CautionWarning} Trade Notification`)
                             .addFields({
                                 name: '[INFO]',
                                 value: 'Received Amount is (**Insufficient**)'
@@ -1807,13 +1808,13 @@ If any information is incorrect, contact support immediately.\`\`**`
             const pasteButton = new ButtonBuilder()
                 .setCustomId(`paste|${this.addy}|${requestedAmount}`)
                 .setLabel('Paste')
-                .setEmoji(`<:contract:1494053123705016412>`)
+                .setEmoji(`${E.contract}`)
                 .setStyle(ButtonStyle.Secondary);
 
             const qrButton = new ButtonBuilder()
                 .setCustomId(`qr|${this.addy}|${requestedAmount}`)
                 .setLabel('Show QR')
-                .setEmoji(`<:elite_terms:1494053140327170099>`)
+                .setEmoji(`${E.elite_terms}`)
                 .setStyle(ButtonStyle.Secondary);
 
             const row = new ActionRowBuilder().addComponents(pasteButton, qrButton);
@@ -1870,12 +1871,12 @@ If any information is incorrect, contact support immediately.\`\`**`
             }
 
             const ltcEmbed = new EmbedBuilder()
-                .setTitle('<a:1404805419838472225:1494053104650555505> Transaction Detected')
+                .setTitle(`${E.loader} Transaction Detected`)
                 .setColor(0xFFFF33);
 
             if (this.dealAmount > this.usd) {
                 ltcEmbed.addFields({
-                    name: '<:elite_CautionWarning:1494053065681273005> Alert',
+                    name: `${E.elite_CautionWarning} Alert`,
                     value: 'The deal was finalized with a lower amount than the agreed upon deal value'
                 });
             }
@@ -2065,21 +2066,21 @@ If any information is incorrect, contact support immediately.\`\`**`
         try {
 
             const walletEmbed = new EmbedBuilder()
-                .setTitle('<:1390952506346963016:1494053058668396735>   Amount Received')
+                .setTitle(`${E.check}   Amount Received`)
                 .setColor(0x00b300)
                 .setDescription('> **The Bot has received the specified amount of LTC. Please choose an action.**')
                 .addFields(
 
                     {
-                        name: '<:contract:1494053123705016412> Address',
+                        name: `${E.contract} Address`,
                         value: `\`\`\`${this.addy}\`\`\``,
                         inline: false
                     }, {
-                    name: '<:elite_LTC:1494053153350357022> LTC',
+                    name: `${E.elite_LTC} LTC`,
                     value: `\`\`\`${this.receivedAmount}\`\`\``,
                     inline: true
                 }, {
-                    name: `<:Money:1494053090863612024> ${this.currency}`,
+                    name: `${E.Money} ${this.currency}`,
                     value: `\`\`\`${this.usd}\`\`\``,
                     inline: true
                 }
@@ -2150,7 +2151,7 @@ If any information is incorrect, contact support immediately.\`\`**`
 
     async handleCancel(interaction) {
         const confirm_embed = new EmbedBuilder()
-            .setTitle('<:elite_CautionWarning:1494053065681273005> Cancel Trade')
+            .setTitle(`${E.elite_CautionWarning} Cancel Trade`)
             .setDescription('Are you sure you want to cancel this trade? This action cannot be undone.')
             .setColor(0xFF0000)
             .setTimestamp()
@@ -2239,10 +2240,10 @@ If any information is incorrect, contact support immediately.\`\`**`
                             return;
                         }
 
-                        await m.react('<a:green_tick:1481611281415798871>');
+                        await m.react(`${E.green_tick}`);
 
                         const confirmAddrEmbed = new EmbedBuilder()
-                            .setTitle('> <:elite_LTC:1494053153350357022>  Confirm LTC Address')
+                            .setTitle(`> ${E.elite_LTC}  Confirm LTC Address`)
                             .setDescription(`** You entered the following LTC address:\n\n\` ${ltcAddress}\`\n\n > Is this correct?**`)
                             .setColor(0x303238)
                             .setTimestamp()
@@ -2256,7 +2257,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                                     .setCustomId('confirmLTC')
                                     .setLabel('Yes, Correct Address')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('<a:green_tick:1481611281415798871>'),
+                                    .setEmoji(`${E.green_tick}`),
                                 new ButtonBuilder()
                                     .setCustomId('resetLTC')
                                     .setLabel('Reset')
@@ -2279,7 +2280,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                                 if (!confirmAction.replied) await confirmAction.deferUpdate();
 
                                 const confirmedBySenderEmbed = new EmbedBuilder()
-                                    .setTitle('<a:green_tick:1481611281415798871>  Confirmed by Sender')
+                                    .setTitle(`${E.green_tick}  Confirmed by Sender`)
                                     .setDescription(`> <@${this.sender}> has confirmed the trade details.`)
                                     .addFields({
                                         name: 'Receiver Address',
@@ -2378,7 +2379,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                 }
                 this.disableButtons(this.x)
                 const paymentReleasedEmbed = new EmbedBuilder()
-                    .setTitle('> <:elite_LTC:1494053153350357022>  Payment Released')
+                    .setTitle(`> ${E.elite_LTC}  Payment Released`)
 
 
                 if (this.dealAmount > this.usd) {
@@ -2422,10 +2423,10 @@ If any information is incorrect, contact support immediately.\`\`**`
                         return;
                     }
 
-                    await m.react('<a:green_tick:1481611281415798871>');
+                    await m.react(`${E.green_tick}`);
 
                     const confirmAddrEmbed = new EmbedBuilder()
-                        .setTitle('<:elite_CautionWarning:1494053065681273005>  Confirm LTC Address')
+                        .setTitle(`${E.elite_CautionWarning}  Confirm LTC Address`)
                         .setDescription(`> You entered the following LTC address:\n\n\`${ltcAddress}\`\n\n**Is this correct?**`)
                         .setColor(0x00FF00)
                         .setTimestamp()
@@ -2439,7 +2440,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                                 .setCustomId('confirmLTC')
                                 .setLabel('Yes, Correct Address')
                                 .setStyle(ButtonStyle.Secondary)
-                                .setEmoji('<a:green_tick:1481611281415798871>'),
+                                .setEmoji(`${E.green_tick}`),
                             new ButtonBuilder()
                                 .setCustomId('resetLTC')
                                 .setLabel('Reset')
@@ -2462,7 +2463,7 @@ If any information is incorrect, contact support immediately.\`\`**`
                             if (!confirmAction.replied) await confirmAction.deferUpdate();
 
                             const confirmedByReceiverEmbed = new EmbedBuilder()
-                                .setTitle('<a:green_tick:1481611281415798871>  Confirmed by Receiver')
+                                .setTitle(`${E.green_tick}  Confirmed by Receiver`)
                                 .setDescription(`> <@${this.receiver}> has confirmed the trade details.`)
                                 .addFields({
                                     name: 'Receiver Address',
