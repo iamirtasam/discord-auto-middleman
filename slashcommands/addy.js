@@ -1,11 +1,10 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
 const E = require('../functions/emojis');
+const UI = require('../functions/ui');
 const fs = require('fs');
-const path = require('path');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -22,15 +21,18 @@ module.exports = {
         })
         const LTCaddy = await getData(ID);
         if (LTCaddy) {
-            return interaction.editReply({
-                content: `> ${E.elite_LTC} **Addy :** ${LTCaddy}`,
-                ephemeral: true
-            });
+            return interaction.editReply(UI.card(UI.COLORS.info)
+                .title('Thread LTC Address', E.elite_LTC)
+                .divider()
+                .field('Address', `\`${LTCaddy}\``)
+                .foot("Fetched from this thread's escrow record - keep it private")
+                .msg({ ephemeral: true, content: null }));
         } else {
-            interaction.editReply({
-                content: `${E.Cancel} Record  ${ID} was not found.`,
-                ephemeral: true
-            });
+            interaction.editReply(UI.card(UI.COLORS.danger)
+                .title('Record Not Found', E.Cancel)
+                .divider()
+                .text(`No escrow record exists for thread \`${ID}\`.`)
+                .msg({ ephemeral: true, content: null }));
         }
         async function getData(ID) {
             try {
