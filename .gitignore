@@ -15,3 +15,6 @@ node_modules/
 # ==== Archives / backups / leftovers ====
 *.zip
 *.old
+
+# ==== Local reference docs (not part of the app) ====
+cv2/
