@@ -1,14 +1,14 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
     WebhookClient,
-    EmbedBuilder,
     StringSelectMenuBuilder,
     ActionRowBuilder,
     TextInputBuilder,
     ModalBuilder,
     TextInputStyle
 } = require('discord.js');
+
+const UI = require('../functions/ui');
 
 
 const toml = require('toml');
@@ -49,15 +49,13 @@ module.exports = {
 
         const actionRow = new ActionRowBuilder().addComponents(formMenu);
 
-        const embed = new EmbedBuilder()
-            .setTitle('Contact Support')
-            .setColor('Yellow')
-            .setDescription('Please select the type of support you need from the dropdown menu below.');
+        const supportCard = UI.card(UI.COLORS.warn)
+            .title('Contact Support')
+            .divider()
+            .text('Please select the type of support you need from the dropdown menu below.')
+            .row(actionRow);
 
-        await interaction.reply({
-            embeds: [embed],
-            components: [actionRow],
-        });
+        await interaction.reply(supportCard.msg());
 
         const filter = (i) => i.user.id === interaction.user.id;
         const collector = interaction.channel.createMessageComponentCollector({
@@ -106,22 +104,13 @@ module.exports = {
                         details: 'Cancel request'
                     };
 
-                    let embed = new EmbedBuilder()
-                        .setTitle('Cancel Request')
-                        .setDescription(payload.details)
-                        .setAuthor({
-                            name: `${interaction.user.username}`
-                        })
-                        .setTimestamp()
-                        .setColor('Blue')
-                        .setFields({
-                            name: 'Channel Location',
-                            value: `<#${i.channelId}>`
-                        });
+                    let card = UI.card(UI.COLORS.info)
+                        .title('Cancel Request', E.elite_CautionWarning)
+                        .divider()
+                        .field('Channel Location', `<#${i.channelId}>`)
+                        .foot(`Requested by ${i.user.username}`, { ts: Math.floor(Date.now() / 1000) });
 
-                    await webhookClient.send({
-                        embeds: [embed]
-                    });
+                    await webhookClient.send(card.msg());
 
                     if (!i.replied && !i.deferred) {
                         await i.reply({
@@ -150,22 +139,15 @@ module.exports = {
                     details: details
                 };
 
-                let embed = new EmbedBuilder()
-                    .setTitle(interaction.customId)
-                    .setAuthor({
-                        name: `${payload.username}`
-                    })
-                    .setDescription(payload.details)
-                    .setColor('Blue')
-                    .setTimestamp()
-                    .setFields({
-                        name: 'Channel Location',
-                        value: `<#${interaction.channelId}>`
-                    });
+                let card = UI.card(UI.COLORS.info)
+                    .title(interaction.customId === 'botRelatedModal' ? 'Bot Related Support' : 'General Support')
+                    .divider()
+                    .text(payload.details || '*No details provided*')
+                    .divider({ visible: false })
+                    .field('Channel Location', `<#${interaction.channelId}>`)
+                    .foot(`Requested by ${payload.username}`, { ts: Math.floor(Date.now() / 1000) });
 
-                await webhookClient.send({
-                    embeds: [embed]
-                });
+                await webhookClient.send(card.msg());
 
                 if (!interaction.replied && !interaction.deferred) {
                     await interaction.reply({
