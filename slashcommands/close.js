@@ -1,12 +1,9 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
-const axios = require('axios');
-const toml = require('toml');
-const fs = require('fs');
-const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
+const E = require('../functions/emojis');
+const UI = require('../functions/ui');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -17,7 +14,12 @@ module.exports = {
 
 
 	const thread = interaction.thread
-	await thread.send('This trade will be closed and deleted in 30 seconds.');
+	await thread.send(UI.card(UI.COLORS.warn)
+            .title('Thread Closing', E.elite_CautionWarning)
+            .divider()
+            .text('This trade will be **closed and deleted** in 30 seconds.')
+            .foot('Admins only action')
+            .msg());
         await new Promise(resolve => setTimeout(resolve, 30000));
         await thread.setLocked(true);
         await thread.setName('Closed!');

@@ -1,9 +1,9 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    PermissionFlagsBits
 } = require('discord.js');
 const E = require('../functions/emojis');
+const UI = require('../functions/ui');
 const axios = require('axios');
 const toml = require('toml');
 const fs = require('fs');
@@ -36,16 +36,19 @@ module.exports = {
             let LTCbal = await balance(this.ltcaddy)
             if (LTCbal <= 0) {
 
-                return interaction.editReply({
-                    content: `> ${E.elite_terms} No Balance Found \n> ${this.currency} : 0 \n> LTC : ${LTCbal.toFixed(8)}`,
-                    ephemeral: true
-                })
+                return interaction.editReply(UI.card(UI.COLORS.danger)
+                    .title('No Balance Found', E.elite_terms)
+                    .divider()
+                    .fields(['USD', String(0)], ['LTC', LTCbal.toFixed(8)])
+                    .msg({ ephemeral: true, content: null }))
             }
             let USDbal = await ltcToUsd(LTCbal)
-            return interaction.editReply({
-                content: `${E.elite_terms}  Balance Found \n> ${this.currency} ${USDbal} : 0 \n> LTC : ${LTCbal.toFixed(8)}`,
-                ephemeral: true
-            })
+            return interaction.editReply(UI.card(UI.COLORS.success)
+                .title('Balance Found', E.elite_terms)
+                .divider()
+                .fields(['USD', String(USDbal)], ['LTC', LTCbal.toFixed(8)])
+                .foot('Live blockchain balance at the time of the request')
+                .msg({ ephemeral: true, content: null }))
         }
         return
 

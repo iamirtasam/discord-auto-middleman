@@ -1,12 +1,8 @@
 const {
-    SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder
+    SlashCommandBuilder
 } = require('discord.js');
-const axios = require('axios');
-const toml = require('toml');
-const fs = require('fs');
-const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
+const E = require('../functions/emojis');
+const UI = require('../functions/ui');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -14,9 +10,14 @@ module.exports = {
         .setDescription('Shows the Changelog'),
     async execute(client, interaction) {
 
-        await interaction.reply({
-            content: `Started working on Bitcoin as Currency for the trade. \nStarted working on the function to choose between Euro or USD for the trade.`,
-            ephemeral: true
-        })
+        await interaction.reply(UI.card(UI.COLORS.info)
+            .title('Changelog', E.loader)
+            .divider()
+            .bullets([
+                'Started working on **Bitcoin** as a currency for the trade',
+                'Started working on the function to choose between **Euro or USD** for the trade',
+            ])
+            .foot('Development roadmap of the AutoMM')
+            .msg({ ephemeral: true }))
     }
 }
