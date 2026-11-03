@@ -237,9 +237,86 @@ class Card {
     }
 }
 
+/** Component type numbers (mirror of ComponentType). */
+const TYPE = { ACTION_ROW: 1, BUTTON: 2, SEPARATOR: 14, TEXT_DISPLAY: 10, SECTION: 9, THUMBNAIL: 11, MEDIA_GALLERY: 12, FILE: 13, CONTAINER: 17 };
+
+/**
+ * Return fresh components with every interactive button enabled/disabled.
+ * Works for BOTH message layouts: classic `[actionRow...]` and CV2
+ * `[container...]` - on CV2 it rebuilds the whole container (edit replaces
+ * all components, so the card must be sent back in full).
+ */
+function withButtonState(components, disabled) {
+    return components.map((rootRaw) => {
+        const root = rootRaw.toJSON ? rootRaw.toJSON() : rootRaw;
+
+        if (root.type === TYPE.ACTION_ROW) {
+            const rebuiltRow = new ActionRowBuilder();
+            rebuiltRow.addComponents(root.components.map((item) => {
+                if (item.type === TYPE.BUTTON) return ButtonBuilder.from(item).setDisabled(disabled);
+                return item; // selects and anything else pass through untouched
+            }));
+            return rebuiltRow;
+        }
+
+        if (root.type === TYPE.CONTAINER) {
+            const container = new ContainerBuilder();
+            if (root.accent_color !== undefined && root.accent_color !== null) container.setAccentColor(root.accent_color);
+            if (root.spoiler) container.setSpoiler(true);
+
+            for (const child of root.components) {
+                if (child.type === TYPE.ACTION_ROW) {
+                    const rebuiltRow = new ActionRowBuilder();
+                    rebuiltRow.addComponents(child.components.map((item) => {
+                        if (item.type === TYPE.BUTTON) return ButtonBuilder.from(item).setDisabled(disabled);
+                        return item;
+                    }));
+                    container.addActionRowComponents(rebuiltRow);
+                } else if (child.type === TYPE.TEXT_DISPLAY) {
+                    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(child.content));
+                } else if (child.type === TYPE.SEPARATOR) {
+                    container.addSeparatorComponents(
+                        new SeparatorBuilder().setDivider(child.divider).setSpacing(child.spacing ?? SeparatorSpacingSize.Small),
+                    );
+                } else if (child.type === TYPE.SECTION) {
+                    const section = new SectionBuilder();
+                    for (const text of child.components.filter((c) => c.type === TYPE.TEXT_DISPLAY)) {
+                        section.addTextDisplayComponents(new TextDisplayBuilder().setContent(text.content));
+                    }
+                    const accessory = child.accessory;
+                    if (accessory.type === TYPE.THUMBNAIL) {
+                        section.setThumbnailAccessory(
+                            new ThumbnailBuilder().setURL(accessory.media.url).setSpoiler(!!accessory.spoiler),
+                        );
+                    } else if (accessory.type === TYPE.BUTTON) {
+                        section.setButtonAccessory(ButtonBuilder.from(accessory).setDisabled(disabled));
+                    }
+                    container.addSectionComponents(section);
+                } else if (child.type === TYPE.MEDIA_GALLERY) {
+                    container.addMediaGalleryComponents(
+                        new MediaGalleryBuilder().addItems(...child.items.map((item) => {
+                            const node = new MediaGalleryItemBuilder().setURL(item.media.url);
+                            if (item.description) node.setDescription(item.description);
+                            if (item.spoiler) node.setSpoiler(true);
+                            return node;
+                        })),
+                    );
+                } else if (child.type === TYPE.FILE) {
+                    container.addFileComponents(
+                        new FileBuilder().setURL(child.file.url).setSpoiler(!!child.file.spoiler),
+                    );
+                }
+            }
+            return container;
+        }
+
+        return root; // unknown shape - pass through
+    });
+}
+
 /** Start a CV2 card. */
 function card(accent) {
     return accent === undefined ? new Card() : new Card(accent);
 }
 
-module.exports = { COLORS, Card, card };
+module.exports = { COLORS, Card, card, withButtonState };
