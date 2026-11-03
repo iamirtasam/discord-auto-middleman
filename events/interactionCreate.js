@@ -11,6 +11,7 @@ const {
     ThreadAutoArchiveDuration,
     Client
 } = require('discord.js');
+const E = require('../functions/emojis');
 const toml = require('toml');
 const fs = require('fs');
 const Trade = require('../functions/trade');
@@ -217,8 +218,8 @@ module.exports = {
 
 
                         const confirm = new EmbedBuilder()
-                            .setTitle('<:elite_CautionWarning:1494053065681273005>  Confirm Trade Creation')
-                            .setDescription('<:faq:1494053061398761472>  **Are you sure you want to open a trade?** (Thread will be deleted in 5 minutes if you dont respond)')
+                            .setTitle(`${E.elite_CautionWarning}  Confirm Trade Creation`)
+                            .setDescription(`${E.faq}  **Are you sure you want to open a trade?** (Thread will be deleted in 5 minutes if you dont respond)`)
                             .setColor(0xFFFF00);
 
                         const row = new ActionRowBuilder().addComponents(
@@ -266,13 +267,13 @@ module.exports = {
 
                         })
                         await interaction.editReply({
-                            content: `<:1390952506346963016:1494053058668396735> **Created Trade → <#${thread.id}>**`,
+                            content: `${E.check} **Created Trade → <#${thread.id}>**`,
                             ephemeral: true
                         });
                     } catch (error) {
-                        logger.error('<:Cancel:1494053054922887339> Error creating trade:', error);
+                        logger.error(`${E.Cancel} Error creating trade:`, error);
                         await interaction.editReply({
-                            content: '<:Cancel:1494053054922887339> An error occurred while creating the trade.',
+                            content: `${E.Cancel} An error occurred while creating the trade.`,
                             ephemeral: true
                         });
                     }
