@@ -3,6 +3,7 @@ const {
     PermissionFlagsBits,
     EmbedBuilder
 } = require('discord.js');
+const E = require('../functions/emojis');
 const fs = require('fs');
 const path = require('path');
 
@@ -16,18 +17,18 @@ module.exports = {
         let ID = interaction.channelId;
 
         await interaction.reply({
-            content: `> <:faq:1494053061398761472> Finding Key In Data .  .  .  .`,
+            content: `> ${E.faq} Finding Key In Data .  .  .  .`,
             ephemeral: true
         })
         const LTCaddy = await getData(ID);
         if (LTCaddy) {
             return interaction.editReply({
-                content: `> <:elite_LTC:1494053153350357022> **Addy :** ${LTCaddy}`,
+                content: `> ${E.elite_LTC} **Addy :** ${LTCaddy}`,
                 ephemeral: true
             });
         } else {
             interaction.editReply({
-                content: `<:Cancel:1494053054922887339> Record  ${ID} was not found.`,
+                content: `${E.Cancel} Record  ${ID} was not found.`,
                 ephemeral: true
             });
         }
