@@ -17,14 +17,14 @@ module.exports = {
         const keys = E.keys();
         if (keys.length === 0) {
             return interaction.editReply({
-                content: '<:Cancel:1494053054922887339> No emojis loaded - check emojis.txt'
+                content: `${E.Cancel} No emojis loaded - check emojis.txt`
             });
         }
 
         const lines = keys.map((key, i) => `${E.get(key)} \`${key}\` (${i + 1}/${keys.length})`);
 
         const embed = new EmbedBuilder()
-            .setTitle(`<:refresh:1494053077450490058> Emoji Check - ${keys.length} emojis from emojis.txt`)
+            .setTitle(`${E.refresh} Emoji Check - ${keys.length} emojis from emojis.txt`)
             .setColor(0x00BFFF)
             .setTimestamp();
 
