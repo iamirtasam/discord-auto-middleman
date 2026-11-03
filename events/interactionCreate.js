@@ -1,6 +1,5 @@
 const {
     Events,
-    EmbedBuilder,
     ActionRowBuilder,
     AttachmentBuilder,
     permissionOverwrites,
@@ -12,6 +11,7 @@ const {
     Client
 } = require('discord.js');
 const E = require('../functions/emojis');
+const UI = require('../functions/ui');
 const toml = require('toml');
 const fs = require('fs');
 const Trade = require('../functions/trade');
@@ -142,7 +142,12 @@ module.exports = {
                         ssr: true
                     });
                     await interaction.reply({ content: `We sent a copy of the transcript in your dm's.`, ephemeral: true })
-                    await interaction.user.send({ embeds: [new EmbedBuilder().setTitle('Made by Joystoss Transcript').setTimestamp().setColor('Blue')], files: [attachment] }).catch(err => console.log(err))
+                    await interaction.user.send(UI.card(UI.COLORS.info)
+                        .title('Made by Joystoss Transcript')
+                        .divider()
+                        .file(attachment.name)
+                        .foot('Full copy of this trade thread', { ts: Math.floor(Date.now() / 1000) })
+                        .msg({ files: [attachment] })).catch(err => console.log(err))
                 }
 
 
@@ -169,16 +174,13 @@ module.exports = {
 
                         const buffer = fs.readFileSync(qr_path);
                         const attachment = new AttachmentBuilder(buffer, `${addy}.png`);
-                        const embed = new EmbedBuilder()
-                            .setTitle(`QR Code for Address: ${addy}`)
-                            .setImage(`attachment://${addy}.png`)
-                            .setColor('#0099ff');
 
-                        await interaction.editReply({
-                            embeds: [embed],
-                            files: [attachment],
-                            ephemeral: false
-                        });
+                        await interaction.editReply(UI.card(0x0099ff)
+                            .title(`QR Code for Address: ${addy}`)
+                            .divider()
+                            .gallery([{ url: `attachment://${addy}.png`, description: 'Scan with a Litecoin wallet' }])
+                            .foot(`${amount} LTC - or use the Copy Address button`)
+                            .msg({ files: [attachment] }));
                         setTimeout(() => fs.unlink(qr_path, (err) => err && console.error('Failed to delete QR code image:', err)), 5000);
                     } catch (error) {
                         console.error('Error generating QR code:', error);
@@ -217,20 +219,18 @@ module.exports = {
                         await thread.members.add(interaction.user.id);
 
 
-                        const confirm = new EmbedBuilder()
-                            .setTitle(`${E.elite_CautionWarning}  Confirm Trade Creation`)
-                            .setDescription(`${E.faq}  **Are you sure you want to open a trade?** (Thread will be deleted in 5 minutes if you dont respond)`)
-                            .setColor(0xFFFF00);
-
                         const row = new ActionRowBuilder().addComponents(
                             new ButtonBuilder().setCustomId('openTrade').setLabel('Open Trade').setStyle(ButtonStyle.Success),
                             new ButtonBuilder().setCustomId('cancelTrade').setLabel('Cancel').setStyle(ButtonStyle.Danger)
                         );
 
-                        const msg = await thread.send({
-                            embeds: [confirm],
-                            components: [row]
-                        });
+                        const confirmCard = UI.card(UI.COLORS.warn)
+                            .title('Confirm Trade Creation', E.elite_CautionWarning)
+                            .divider()
+                            .text(`${E.faq}  **Are you sure you want to open a trade?** (Thread will be deleted in 5 minutes if you dont respond)`)
+                            .row(row);
+
+                        const msg = await thread.send(confirmCard.msg());
 
                         const filter = handleButton => handleButton.user.id === interaction.user.id;
                         const collector = thread.createMessageComponentCollector({
@@ -245,10 +245,11 @@ module.exports = {
                                     const trade = new Trade(handleButton, thread);
                                     queueMicrotask(() => trade.start(msg));
                                 } else if (handleButton.customId === 'cancelTrade') {
-                                    await handleButton.update({
-                                        content: 'Trade cancelled!',
-                                        components: []
-                                    });
+                                    await handleButton.update(UI.card(UI.COLORS.danger)
+                                        .title('Trade cancelled!', E.Cancel)
+                                        .divider()
+                                        .text('deal creation cancelled')
+                                        .msg());
                                     await thread.delete();
                                 }
                             } catch (error) {
