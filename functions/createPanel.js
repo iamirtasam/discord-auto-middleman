@@ -78,13 +78,13 @@ module.exports.createPanel = async (client, interaction) => {
 
         const rowWithAutoMM = () => new ActionRowBuilder().addComponents(autoMMButton);
 
-        const panelChannel = await client.channels.fetch(panel_channel_id);
-        if (!panelChannel) return console.log("Panel channel not found");
+        const panelChannel = await client.channels.fetch(panel_channel_id).catch(() => null);
+        if (!panelChannel) throw new Error(`Panel channel not reachable (${panel_channel_id}) — bot lacks View Channel there, or the ID in functions/createPanel.js is stale`);
 
         const message = await panelChannel.send(panelCard(rowWithAutoMM()).msg());
 
-        const controlChannel = await client.channels.fetch(control_channel_id);
-        if (!controlChannel) return console.log("Control channel not found");
+        const controlChannel = await client.channels.fetch(control_channel_id).catch(() => null);
+        if (!controlChannel) throw new Error(`Control channel not reachable (${control_channel_id}) — bot lacks View Channel there, or the ID in functions/createPanel.js is stale`);
 
         let toggleButton = new ButtonBuilder()
             .setLabel('Disable AutoMM')
