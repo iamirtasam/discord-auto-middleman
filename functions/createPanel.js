@@ -12,8 +12,8 @@ const UI = require('./ui');
 const panelModel = require('../database/panel.js');
 
 const password = "StrongPassword";
-const control_channel_id = "1494037674485612706";
-const panel_channel_id = "1481585857969262652";
+const control_channel_id = "1498812002653700106";
+const panel_channel_id = "1290576057514332163";
 
 module.exports.createPanel = async (client, interaction) => {
     const Panel = await panelModel.findOne({ guildId: interaction.guildId });

@@ -576,7 +576,7 @@ Explorer links are built as `https://live.blockcypher.com/ltc/tx/{txid}`.
 | `token` | string | Discord bot token |
 | `guildID` | string | Home guild (used for role assignment) |
 | `thread_channel` | string | Channel in which trade threads are opened |
-| `mongoURL` | string | MongoDB connection string (panel registry) |
+| `mongoURL` | string | MongoDB connection string (panel registry). A **database name is required** in the path; if you omit it (e.g. `mongodb://…:27017/?…`), the bot falls back to database `automm` and says so at startup — without this fallback, every query would fail with `Invalid namespace specified: …` |
 | `payment_webhook` | webhook url | "Trade Completed" log cards |
 | `transcript_webhook` | webhook url | HTML transcript log cards |
 | `support_webhook` | webhook url | `/support` user-submissions |
@@ -621,7 +621,7 @@ guildId (required) · channelId · messageId · buttonId
 ```
 
 `createPanel` uses it to track the previous flagship panel (delete-then-recreate). Nothing else is stored in Mongo; users/deals live in `trades.json`.
-(Boot logs `✅ Connected to database.` / red `⚠️ Unable to connect to the database:` on failure.)
+(Boot logs `✅ Connected to database (<dbname>).` / red `⚠️ Unable to connect to the database:` on failure. A URL without a database name falls back to `automm` instead of crashing queries with `Invalid namespace specified: /.panels`.)
 
 ---
 
