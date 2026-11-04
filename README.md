@@ -14,11 +14,33 @@ A Discord bot that acts as an **automated Litecoin (LTC) middleman / escrow serv
 
 ## Tech stack
 
-- **Node.js** + **discord.js v14** (threads, buttons, modal)
+- **Node.js** + **discord.js v14** (threads, buttons, modal) — UI is 100% **Components V2**, requires `discord.js ^14.28.0`
 - **Tatum API** — LTC address & private-key generation, transfers
 - **BlockCypher API** — transaction monitoring & balances
 - **CryptoCompare API** — USD/EUR ⇄ LTC rates
 - **MongoDB** (mongoose) — panel storage • **trades.json** — per-thread escrow state persistence
+
+## UI (Components V2, no embeds)
+
+Every message the bot posts is a CV2 **container** (`MessageFlags.IsComponentsV2`) — text displays, headings, separators, sections with accessors, media galleries and files instead of an embed + loose `content`. All visual markup flows through a small design system in **`functions/ui.js`**:
+
+```js
+// fluent card builder — used by every flow (panels, escrow, invoices, transcripts)
+UI.card(UI.COLORS.warn)
+    .title('Transaction Detected', E.loader)   // heading inside the container
+    .divider()                                 // separator
+    .text('> The Payment for this deal has been Detected')
+    .field('Txid', `[ ${hash} ](https://…)`)   // "Label: value" text node
+    .foot('Waiting for confirmations', { ts }) // footer + <t:…:F> timestamp
+    .row(row)                                  // action row rides inside the card
+    .msg({ allowPing: true })                  // full payload, flag pre-set
+```
+
+- `UI.COLORS` — the container accent palette (brand `0x1ec42c`, success, warn, danger, info)
+- `Card.msg()` — always returns a payload with the CV2 flag and **no pings** (`allowedMentions.parse: []`); pass `allowPing: true` at the few spots that explicitly ping (spoiler sandwiches, wallet notices)
+- `UI.withButtonState(components, disabled)` — toggles button state on an **existing** CV2 message while preserving its layout (clones CV2 containers or classic rows)
+
+Because CV2 payloads can't carry `content`/`embeds`, converted messages that used to send plain text send a one-node card instead, and legacy content is scrubbed on edits with `{ content: null }`.
 
 ## Emojis (zero-config, auto-uploaded)
 
@@ -43,6 +65,8 @@ node index.js
 ```
 
 `config.toml` and `trades.json` are **git-ignored on purpose** — they hold bot tokens, API keys, wallet mnemonic and private keys.
+
+> Pulling the CV2 UI upgrade? Run `npm install` again — it bumps you to **discord.js ^14.28.0** (the first 14.x line with full Components V2 support).
 
 ## Slash commands (admin)
 
