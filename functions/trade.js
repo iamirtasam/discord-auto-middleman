@@ -1,10 +1,10 @@
 const {
-    EmbedBuilder,
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle
 } = require('discord.js');
 const E = require('./emojis');
+const UI = require('./ui');
 const toml = require('toml');
 const fs = require('fs');
 const config = toml.parse(fs.readFileSync('./config.toml', 'utf-8'));
@@ -603,9 +603,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
         const confirm_row = this.createConfirmationRow();
 
         if (this.roleEmbed) {
-            await this.roleEmbed.edit({
-                components: [confirm_row]
-            });
+            await this.roleEmbed.edit(this.roleCard().row(confirm_row).msg());
         }
 
         const filter = btnInteract => [this.sender, this.receiver].includes(btnInteract.user.id);
@@ -654,9 +652,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
                         if (roles_Sender.has(this.sender) && roles_Receiver.has(this.receiver) && !this.done) {
                             this.done = true;
-                            await this.roleEmbed.edit({
-                                components: []
-                            });
+                            await this.roleEmbed.edit(this.roleCard().msg());
                             await Promise.all([
                                 this.saveState(), // Save state after both roles are confirmed
                                 this.chooseCurrency(), // Start currency choosing
@@ -1134,28 +1130,6 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 this.waitForTransaction();
             }, 10000);
 
-            const ltcEmbed = new EmbedBuilder()
-                .setTitle(`${E.elite_LTC}  Payment Invoice`)
-                .setColor(0x00b300)
-                .setDescription(`- <@${this.sender}> Please proceed by transferring the agreed-upon funds to the Middleman address specified below.\n- To ensure the accuracy and validation of your payment, it is important to **COPY** and **PASTE** the **EXACT AMOUNT** provided.`)
-                .addFields({
-                    name: `${E.elite_terms} Address`,
-                    value: `**\`\`${this.addy}\`\`**`,
-                    inline: false
-                }, {
-                    name: `${E.elite_LTC} LTC`,
-                    value: `**\`\`${this.ltc_to_receive}\`\`**`,
-                    inline: true
-                }, {
-                    name: `${E.Money} ${this.currency}`,
-                    value: `**\`\`${this.dealAmount}\`\`**`,
-                    inline: true
-                })
-                .setTimestamp()
-                .setFooter({
-                    text: 'Made by Joystoss - Payment Invoice'
-                });
-
             const pasteButton = new ButtonBuilder()
                 .setCustomId(`paste|${this.addy}|${this.ltc_to_receive}`)
                 .setLabel('Paste')
@@ -1171,11 +1145,19 @@ await this.thread.send(UI.card(UI.COLORS.danger)
             const row = new ActionRowBuilder().addComponents(pasteButton, qrButton);
 
             const cha = data.channel;
-            this.msg = await cha.send({
-                components: [row],
-                content: `||<@${this.sender}>||`,
-                embeds: [ltcEmbed]
-            });
+            this.msg = await cha.send(UI.card(UI.COLORS.success)
+                .text(`||<@${this.sender}>||`)
+                .title('Payment Invoice', E.elite_LTC)
+                .divider()
+                .text(`- <@${this.sender}> Please proceed by transferring the agreed-upon funds to the Middleman address specified below.\n- To ensure the accuracy and validation of your payment, it is important to **COPY** and **PASTE** the **EXACT AMOUNT** provided.`)
+                .field(`${E.elite_terms}  Address`, `\`${this.addy}\``)
+                .fields(
+                    [`${E.elite_LTC}  LTC`, `\`${this.ltc_to_receive}\``],
+                    [`${E.Money}  ${this.currency}`, `\`${this.dealAmount}\``],
+                )
+                .foot('Made by Joystoss - Payment Invoice', { ts: Math.floor(Date.now() / 1000) })
+                .row(row)
+                .msg({ allowPing: true }));
 
 
 
@@ -1348,29 +1330,17 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 });
 
                 this.txId = hax.data.txId;
-                const fundReleasedEmbed = new EmbedBuilder()
-                    .setTitle(`${E.check} Funds Released`)
-                    .setDescription(
-                        `The funds have been released to the following LTC address:\n\n**\`\`${address}\`\`**`
-                    )
-                    .addFields({
-                        name: 'Transaction ID',
-                        value: `**[${this.txId}](https://live.blockcypher.com/ltc/tx/${this.txId})**`,
-                        inline: true
-                    }, {
-                        name: 'Timestamp',
-                        value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
-                        inline: true
-                    })
-                    .setColor(0x00FF00)
-                    .setTimestamp()
-                    .setFooter({
-                        text: ' Made by Joystoss - Trade Completed'
-                    });
 
-                await this.thread.send({
-                    embeds: [fundReleasedEmbed]
-                });
+                await this.thread.send(UI.card(UI.COLORS.success)
+                    .title('Funds Released', E.check)
+                    .divider()
+                    .text(`The funds have been released to the following LTC address:\n\n\`${address}\``)
+                    .fields(
+                        ['Transaction ID', `[${this.txId}](https://live.blockcypher.com/ltc/tx/${this.txId})`],
+                        ['Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`],
+                    )
+                    .foot('Made by Joystoss - Trade Completed', { ts: Math.floor(Date.now() / 1000) })
+                    .msg());
                 this.progress = `Releasesd Funds at ${address}`
                 await this.thread.sendTyping();
                 this.data = {
@@ -1406,15 +1376,13 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                         .setLabel('Transcript')
                         .setStyle(ButtonStyle.Secondary)
                 );
-                const transcript = new EmbedBuilder()
-                    .setTitle(`${E.ticket1} Transcript Manager`)
-                    .setDescription(`> Would you like us to send you a transcript of this deal?`)
-                    .setColor(0xFFFF00)
 
-                await this.thread.send({
-                    components: [button],
-                    embeds: [transcript]
-                })
+                await this.thread.send(UI.card(UI.COLORS.warn)
+                    .title('Transcript Manager', E.ticket1)
+                    .divider()
+                    .text(`> Would you like us to send you a transcript of this deal?`)
+                    .row(button)
+                    .msg())
 
                 await this.thread.sendTyping();
                 await new Promise(resolve => setTimeout(resolve, 6000));
@@ -1518,26 +1486,24 @@ await this.thread.send(UI.card(UI.COLORS.danger)
             if (!txidFound) {
                 if (this.counter >= 5) {
                     txidFound = true;
-                    const message = await this.thread.send({
-                        content: `<@${this.sender}>`,
-                        embeds: [new EmbedBuilder().setDescription(`> ⚠ Transaction Not Detected .  What would you like to do?`).setColor(0xFFFF33)],
-                        components: [{
-                            type: 1,
-                            components: [{
-                                type: 2,
-                                label: 'Re-scan',
-                                emoji: `${E.refresh}`,
-                                style: 2,
-                                custom_id: 'rescan'
-                            },
-                            {
-                                type: 2,
-                                label: 'cancel',
-                                style: 4,
-                                custom_id: 'close_trade'
-                            }]
-                        }]
-                    });
+                    const scanRow = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('rescan')
+                            .setLabel('Re-scan')
+                            .setEmoji(`${E.refresh}`)
+                            .setStyle(ButtonStyle.Secondary),
+                        new ButtonBuilder()
+                            .setCustomId('close_trade')
+                            .setLabel('cancel')
+                            .setStyle(ButtonStyle.Danger)
+                    );
+                    const message = await this.thread.send(UI.card(UI.COLORS.warn)
+                        .text(`<@${this.sender}>`)
+                        .title('Transaction Not Detected', E.elite_CautionWarning)
+                        .divider()
+                        .text('What would you like to do?')
+                        .row(scanRow)
+                        .msg({ allowPing: true }));
 
                     try {
                         const interaction = await message.awaitMessageComponent({
@@ -1548,11 +1514,12 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                         if (interaction.customId === 'rescan') {
                             this.counter = 0;
                             txidFound = false;
-                            this.rescan = await interaction.update({
-                                content: `> ${E.refresh} <@${this.sender}> Requested Rescan`,
-                                embeds: [],
-                                components: []
-                            });
+                            this.rescan = await interaction.update(UI.card(UI.COLORS.warn)
+                                .title('Requested Rescan', E.refresh)
+                                .divider()
+                                .text(`<@${this.sender}> requested a rescan of the transactions.`)
+                                .foot('Scanning again for incoming transactions')
+                                .msg({ allowPing: true }));
                         } else if (interaction.customId === 'close_trade') {
                             if (this.receivedAmount > 0) {
                                 txidFound = true;
@@ -1603,23 +1570,6 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
     async incuff() {
 
-        const newE = new EmbedBuilder()
-            .setTitle(`${E.elite_CautionWarning}  Amount Mismatch`)
-            .setColor(0xFF0000)
-            .setDescription(`<@${this.sender}>, the amount received (${this.receivedAmount} LTC) is less than the expected amount (${this.ltc_to_receive} LTC).`)
-            .addFields({
-                name: 'Expected Amount',
-                value: `\`${this.dealAmount} ${this.currency}\``,
-                inline: true
-            }, {
-                name: 'Received Amount',
-                value: `\`${this.usd} {this.currency}\``,
-                inline: true
-            })
-            .setFooter({
-                text: 'Please send the remaining amount to complete the trade.'
-            });
-
         const options_row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
@@ -1633,11 +1583,18 @@ await this.thread.send(UI.card(UI.COLORS.danger)
             );
         try {
 
-            this.message = await this.thread.send({
-                content: `||<@${this.sender}><@${this.receiver}>||`,
-                embeds: [newE],
-                components: [options_row]
-            });
+            this.message = await this.thread.send(UI.card(UI.COLORS.danger)
+                .text(`||<@${this.sender}><@${this.receiver}>||`)
+                .title('Amount Mismatch', E.elite_CautionWarning)
+                .divider()
+                .text(`<@${this.sender}>, the amount received (${this.receivedAmount} LTC) is less than the expected amount (${this.ltc_to_receive} LTC).`)
+                .fields(
+                    ['Expected Amount', `\`${this.dealAmount} ${this.currency}\``],
+                    ['Received Amount', `\`${this.usd} {this.currency}\``],
+                )
+                .foot('Please send the remaining amount to complete the trade.', { ts: Math.floor(Date.now() / 1000) })
+                .row(options_row)
+                .msg({ allowPing: true }));
             const filter = (interaction) => interaction.user.id === this.sender && ['addmore', 'continuex'].includes(interaction.customId);
             const newCollector = this.message.createMessageComponentCollector({
                 filter,
@@ -1648,11 +1605,11 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 if (interaction.customId === 'addmore') {
                     this.sendMoreCounter++;
 
-                    await this.message.edit({
-                        content: `> ${E.faq} ${interaction.user} Decided To Send More Funds!`,
-                        components: [],
-                        embeds: []
-                    });
+                    await this.message.edit(UI.card(UI.COLORS.warn)
+                        .title('Sending More Funds', E.faq)
+                        .divider()
+                        .text(`${interaction.user} decided to send more funds! Please follow the instructions to add more funds.`)
+                        .msg({ allowPing: true }));
 
                     if (!interaction.replied) {
                         await interaction.reply({
@@ -1672,51 +1629,30 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                     if (interaction.customId === 'continuex') {
                         // this.startDealTimeout();
                         this.fetchTaxID();
-                        await this.message.edit({
-                            components: [],
-                            embeds: [
-                                new EmbedBuilder()
-                                    .setTitle(`${E.elite_CautionWarning} Deal Proceeds with Received Amount`)
-                                    .setDescription('Sender continues the deal despite receiving a different LTC amount.')
-                                    .addFields({
-                                        name: 'Situation',
-                                        value: 'Received LTC amount differs from the agreed deal.'
-                                    }, {
-                                        name: 'Decision',
-                                        value: `<@${this.receiver}>  If you disagree with the decision, you can cancel the trade.`
-                                    })
-                                    .setColor(0xFFFF00)
-                                    .setTimestamp()
-                                    .setFooter({
-                                        text: ' Made by Joystoss - Secure Transactions'
-                                    })
-                            ]
-                        });
+                        await this.message.edit(UI.card(UI.COLORS.warn)
+                            .title('Deal Proceeds with Received Amount', E.elite_CautionWarning)
+                            .divider()
+                            .text('Sender continues the deal despite receiving a different LTC amount.')
+                            .field('Situation', 'Received LTC amount differs from the agreed deal.')
+                            .field('Decision', `${this.receiver}  If you disagree with the decision, you can cancel the trade.`)
+                            .foot('Made by Joystoss - Secure Transactions', { ts: Math.floor(Date.now() / 1000) })
+                            .msg());
 
 
-                        const embed = new EmbedBuilder()
-                            .setColor('Yellow')
-                            .setTitle(`${E.elite_CautionWarning} Trade Notification`)
-                            .addFields({
-                                name: '[INFO]',
-                                value: 'Received Amount is (**Insufficient**)'
-                            }, {
-                                name: '[DECISION]',
-                                value: `Sender <@${this.sender}> has decided to continue the deal with the received amount.`
-                            }, {
-                                name: '[NOTICE]',
-                                value: `<@${this.receiver}>, if you disagree with the decision, you can cancel the trade in the coming session.`
-                            });
+                        const noticeCard = UI.card(UI.COLORS.warn)
+                            .title('Trade Notification', E.elite_CautionWarning)
+                            .divider()
+                            .fields(
+                                ['[INFO]', 'Received Amount is (**Insufficient**)'],
+                                ['[DECISION]', `Sender ${this.sender} has decided to continue the deal with the received amount.`],
+                                ['[NOTICE]', `${this.receiver}, if you disagree with the decision, you can cancel the trade in the coming session.`],
+                            );
 
                         if (!interaction.replied) {
-                            await interaction.reply({
-                                embeds: [embed]
-                            });
+                            await interaction.reply(noticeCard.msg());
                             await newCollector.stop();
                         } else {
-                            await interaction.followUp({
-                                embeds: [embed]
-                            });
+                            await interaction.followUp(noticeCard.msg());
                         }
 
                         await newCollector.stop();
@@ -1751,36 +1687,23 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
             const row = new ActionRowBuilder().addComponents(pasteButton, qrButton);
 
-            const updatedInvoiceEmbed = new EmbedBuilder()
-                .setTitle(' Updated Payment Invoice')
-                .setColor(0xFFFF33)
-                .setDescription(`<@${this.sender}>, Please send the remaining LTC to the updated address below:\n\n\`${this.addy}\``)
-                .addFields({
-                    name: 'Remaining Amount',
-                    value: `\`\`\`${requestedAmount}\`\`\``,
-                    inline: true
-                }, {
-                    name: `${this.currency} Amount`,
-                    value: `\`\`\`${this.usd}\`\`\``,
-                    inline: true
-                })
-                .setTimestamp()
-                .setFooter({
-                    text: 'Send the remaining amount to complete the trade'
-                });
+            const invoicePayload = UI.card(UI.COLORS.warn)
+                .text(`||<@${this.sender}>||`)
+                .title('Updated Payment Invoice')
+                .divider()
+                .text(`<@${this.sender}>, Please send the remaining LTC to the updated address below:\n\n\`${this.addy}\``)
+                .fields(
+                    ['Remaining Amount', `\`\`\`${requestedAmount}\`\`\``],
+                    [`${this.currency} Amount`, `\`\`\`${this.usd}\`\`\``],
+                )
+                .foot('Send the remaining amount to complete the trade', { ts: Math.floor(Date.now() / 1000) })
+                .row(row)
+                .msg({ allowPing: true });
 
             if (this.bb) {
-                await this.bb.edit({
-                    content: `||<@${this.sender}>||`,
-                    components: [row],
-                    embeds: [updatedInvoiceEmbed]
-                });
+                await this.bb.edit(invoicePayload);
             } else {
-                this.bb = await this.thread.send({
-                    content: `||<@${this.sender}>||`,
-                    components: [row],
-                    embeds: [updatedInvoiceEmbed]
-                });
+                this.bb = await this.thread.send(invoicePayload);
             }
             await this.waitForTransaction();
         } catch (error) {
@@ -1802,44 +1725,30 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 return;
             }
 
-            const ltcEmbed = new EmbedBuilder()
-                .setTitle(`${E.loader} Transaction Detected`)
-                .setColor(0xFFFF33);
+            const ltcEmbed = () => {
+                const card = UI.card(UI.COLORS.warn)
+                    .title('Transaction Detected', E.loader)
+                    .divider()
+                    .text('- **The Payment for this deal has been Detected**');
+                if (this.dealAmount > this.usd) {
+                    card.field(`${E.elite_CautionWarning}  Alert`, 'The deal was finalized with a lower amount than the agreed upon deal value');
+                }
+                return card
+                    .field('Confirmations Required', `\`\`\`${result.confirmations} / 1\`\`\``)
+                    .field('Txid', `[ \`${result.latestHash}\` ](https://live.blockcypher.com/ltc/tx/${result.latestHash})`)
+                    .fields(
+                        ['Amount Received', `\`${this.receivedAmount}\` LTC`],
+                        ['Amount Received', `${this.usd} ${this.currency}`],
+                    )
+                    .foot('Waiting for blockchain confirmations', { ts: Math.floor(Date.now() / 1000) });
+            };
+            const detectPayload = ltcEmbed().msg();
 
-            if (this.dealAmount > this.usd) {
-                ltcEmbed.addFields({
-                    name: `${E.elite_CautionWarning} Alert`,
-                    value: 'The deal was finalized with a lower amount than the agreed upon deal value'
-                });
-            }
-
-            ltcEmbed.setDescription('- **The Payment for this deal has been Detected**')
-                .addFields({
-                    name: 'Confirmations Required',
-                    value: `\`\`\`${result.confirmations} / 1\`\`\``
-                }, {
-                    name: 'Txid',
-                    value: `[ \`${result.latestHash}\` ](https://live.blockcypher.com/ltc/tx/${result.latestHash})`
-                }, {
-                    name: 'Amount Received',
-                    value: '`' + this.receivedAmount + '` LTC',
-                    inline: true
-                }, {
-                    name: 'Amount Received',
-                    value: `${this.usd}` + ` ${this.currency}`,
-                    inline: true
-                });
             this.hex = result.latestHash;
             if (this.bb) {
-                await this.bb.edit({
-                    embeds: [ltcEmbed],
-                    components: []
-                });
+                await this.bb.edit(detectPayload);
             } else {
-                this.bb = await this.thread.send({
-                    embeds: [ltcEmbed],
-                    components: []
-                });
+                this.bb = await this.thread.send(detectPayload);
             }
 
 
@@ -1859,15 +1768,9 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 if (result) {
 
                     if (this.bb) {
-                        await this.bb.edit({
-                            embeds: [ltcEmbed],
-                            components: []
-                        });
+                        await this.bb.edit(detectPayload);
                     } else {
-                        this.bb = await this.thread.send({
-                            embeds: [ltcEmbed],
-                            components: []
-                        });
+                        this.bb = await this.thread.send(detectPayload);
                     }
 
 
@@ -1875,15 +1778,9 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 } else {
 
                     if (this.bb) {
-                        await this.bb.edit({
-                            embeds: [ltcEmbed],
-                            components: []
-                        });
+                        await this.bb.edit(detectPayload);
                     } else {
-                        this.bb = await this.thread.send({
-                            embeds: [ltcEmbed],
-                            components: []
-                        });
+                        this.bb = await this.thread.send(detectPayload);
                     }
                 }
 
@@ -1891,58 +1788,32 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
             if (result.confirmations >= 1) {
 
-                const embed = new EmbedBuilder()
-                    .setTitle('>  Payment Received by Made by Joystoss')
-                    .setURL(`https://discord.gg/Fusion`)
-                    .setColor(0x00FF00)
+                // Built the same as before but not sent in the current flow (kept for reference)
+                const paymentReceivedCard = UI.card(UI.COLORS.success)
+                    .title('Payment Received by Made by Joystoss')
+                    .divider();
                 if (this.dealAmount > this.usd) {
-                    embed.addFields({
-                        name: '⚠️ Alert',
-                        value: 'The deal was finalized with a lower amount than the agreed upon deal value'
-                    })
+                    paymentReceivedCard.field('⚠️ Alert', 'The deal was finalized with a lower amount than the agreed upon deal value');
                 }
-                embed.addFields({
-                    name: '👤 Sender',
-                    value: `<@${this.sender}>`,
-                    inline: true
-                }, {
-                    name: '📥 LTC Address',
-                    value: `\`\`\`${this.addy}\`\`\``,
-                    inline: false
-                }, {
-                    name: '💰 LTC Amount',
-                    value: `\`\`\`${this.ltc_to_receive}\`\`\``,
-                    inline: true
-                }, {
-                    name: `💵 ${this.currency} Amount`,
-                    value: `\`\`\`{this.usd}\`\`\``,
-                    inline: true
-                })
-                    .addFields({
-                        name: 'Confirmations',
-                        value: `\`\`\`1 / 1\`\`\``
-                    }, {
-                        name: '🌐 Txid',
-                        value: `[ \`${result.latestHash}\` ](https://live.blockcypher.com/ltc/tx/${result.latestHash})`
-                    }, {
-                        name: 'Timestamp',
-                        value: `<t:${Math.floor(Date.now() / 1000)}:F>`
-                    })
-                    .setTimestamp()
-                    .setFooter({
-                        text: 'Payment Received by  Made by Joystoss '
-                    });
+                paymentReceivedCard
+                    .fields(
+                        ['👤 Sender', `${this.sender}`],
+                        ['📥 LTC Address', `\`\`\`${this.addy}\`\`\``],
+                        ['💰 LTC Amount', `\`\`\`${this.ltc_to_receive}\`\`\``],
+                        [`💵 ${this.currency} Amount`, `\`\`\`{this.usd}\`\`\``],
+                    )
+                    .fields(
+                        ['Confirmations', `\`\`\`1 / 1\`\`\``],
+                        ['🌐 Txid', `[ \`${result.latestHash}\` ](https://live.blockcypher.com/ltc/tx/${result.latestHash})`],
+                        ['Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`],
+                    )
+                    .foot('Payment Received by  Made by Joystoss', { ts: Math.floor(Date.now() / 1000) });
+                void paymentReceivedCard;
 
                 if (this.bb) {
-                    await this.bb.edit({
-                        embeds: [ltcEmbed],
-                        components: []
-                    });
+                    await this.bb.edit(detectPayload);
                 } else {
-                    this.bb = await this.thread.send({
-                        embeds: [ltcEmbed],
-                        components: []
-                    });
+                    this.bb = await this.thread.send(detectPayload);
                 }
 
 
@@ -1983,45 +1854,25 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
         try {
 
-            const walletEmbed = new EmbedBuilder()
-                .setTitle(`${E.check}   Amount Received`)
-                .setColor(0x00b300)
-                .setDescription('> **The Bot has received the specified amount of LTC. Please choose an action.**')
-                .addFields(
-
-                    {
-                        name: `${E.contract} Address`,
-                        value: `\`\`\`${this.addy}\`\`\``,
-                        inline: false
-                    }, {
-                    name: `${E.elite_LTC} LTC`,
-                    value: `\`\`\`${this.receivedAmount}\`\`\``,
-                    inline: true
-                }, {
-                    name: `${E.Money} ${this.currency}`,
-                    value: `\`\`\`${this.usd}\`\`\``,
-                    inline: true
-                }
-
+            const walletPayload = UI.card(UI.COLORS.success)
+                .text(`<@${this.sender}><@${this.receiver}>`)
+                .title('Amount Received', E.check)
+                .divider()
+                .text(`> **The Bot has received the specified amount of LTC. Please choose an action.**`)
+                .field(`${E.contract}  Address`, `\`\`\`${this.addy}\`\`\``)
+                .fields(
+                    [`${E.elite_LTC}  LTC`, `\`\`\`${this.receivedAmount}\`\`\``],
+                    [`${E.Money}  ${this.currency}`, `\`\`\`${this.usd}\`\`\``],
                 )
-                .setTimestamp()
-                .setFooter({
-                    text: ' Made by Joystoss - Wallet Transaction'
-                });
+                .foot('Made by Joystoss - Wallet Transaction', { ts: Math.floor(Date.now() / 1000) })
+                .row(newComp)
+                .msg({ allowPing: true });
 
 
             if (this.Newmsg) {
-                this.Newmsg = await this.Newmsg.edit({
-                    components: [newComp],
-                    embeds: [walletEmbed],
-                    content: `<@${this.sender}><@${this.receiver}>`
-                });
+                this.Newmsg = await this.Newmsg.edit(walletPayload);
             } else {
-                this.Newmsg = await this.thread.send({
-                    components: [newComp],
-                    embeds: [walletEmbed],
-                    content: `<@${this.sender}><@${this.receiver}>`
-                });
+                this.Newmsg = await this.thread.send(walletPayload);
             }
 
 
@@ -2068,14 +1919,6 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
 
     async handleCancel(interaction) {
-        const confirm_embed = new EmbedBuilder()
-            .setTitle(`${E.elite_CautionWarning} Cancel Trade`)
-            .setDescription('Are you sure you want to cancel this trade? This action cannot be undone.')
-            .setColor(0xFF0000)
-            .setTimestamp()
-            .setFooter({
-                text: 'Cancellation Request'
-            });
 
         const confirm_row = new ActionRowBuilder()
             .addComponents(
@@ -2090,10 +1933,13 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
             );
 
-        this.confirm = await interaction.followUp({
-            embeds: [confirm_embed],
-            components: [confirm_row]
-        });
+        this.confirm = await interaction.followUp(UI.card(UI.COLORS.danger)
+            .title('Cancel Trade', E.elite_CautionWarning)
+            .divider()
+            .text('Are you sure you want to cancel this trade? This action cannot be undone.')
+            .foot('Cancellation Request', { ts: Math.floor(Date.now() / 1000) })
+            .row(confirm_row)
+            .msg());
 
         const confirmFilter = (btnInteract) => [this.sender, this.receiver].includes(btnInteract.user.id);
         this.finalCollector = interaction.channel.createMessageComponentCollector({
@@ -2123,20 +1969,13 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                     this.finalCollector.stop();
                     await this.confirm.delete().catch(error => console.error('Error deleting message:', error));;
 
-                    const new_embed = new EmbedBuilder()
-                        .setTitle('Trade Canceled')
-                        .setDescription('> Your funds will be refunded. Please provide your LTC address to receive the refund.')
-                        .setColor(0xFF0000)
-                        .setTimestamp()
-                        .setFooter({
-                            text: 'Enter your LTC address to receive the refund'
-                        });
-
-                    await interaction.editReply({
-                        content: `||<@${this.sender}>||`,
-                        embeds: [new_embed],
-                        components: []
-                    });
+                    await interaction.editReply(UI.card(UI.COLORS.danger)
+                        .text(`||<@${this.sender}>||`)
+                        .title('Trade Canceled')
+                        .divider()
+                        .text(`> Your funds will be refunded. Please provide your LTC address to receive the refund.`)
+                        .foot('Enter your LTC address to receive the refund', { ts: Math.floor(Date.now() / 1000) })
+                        .msg({ allowPing: true }));
 
                     const addressFilter = (m) => m.author.id === this.sender;
                     const addressCollector = interaction.channel.createMessageCollector({
@@ -2160,68 +1999,49 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
                         await m.react(`${E.green_tick}`);
 
-                        const confirmAddrEmbed = new EmbedBuilder()
-                            .setTitle(`> ${E.elite_LTC}  Confirm LTC Address`)
-                            .setDescription(`** You entered the following LTC address:\n\n\` ${ltcAddress}\`\n\n > Is this correct?**`)
-                            .setColor(0x303238)
-                            .setTimestamp()
-                            .setFooter({
-                                text: 'Confirm your LTC address'
-                            });
+                        const confirmAddrEmbed = UI.card(0x303238)
+                            .title('Confirm LTC Address', E.elite_LTC)
+                            .divider()
+                            .text(`**You entered the following LTC address:\n\n\`${ltcAddress}\`\n\nIs this correct?**`)
+                            .foot('Confirm your LTC address', { ts: Math.floor(Date.now() / 1000) });
 
-                        const confirm_row = new ActionRowBuilder()
-                            .addComponents(
-                                new ButtonBuilder()
-                                    .setCustomId('confirmLTC')
-                                    .setLabel('Yes, Correct Address')
-                                    .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji(`${E.green_tick}`),
-                                new ButtonBuilder()
-                                    .setCustomId('resetLTC')
-                                    .setLabel('Reset')
-                                    .setStyle(ButtonStyle.Secondary)
-                            );
+                    const confirm_row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('confirmLTC')
+                                .setLabel('Yes, Correct Address')
+                                .setStyle(ButtonStyle.Secondary)
+                                .setEmoji(`${E.green_tick}`),
+                            new ButtonBuilder()
+                                .setCustomId('resetLTC')
+                                .setLabel('Reset')
+                                .setStyle(ButtonStyle.Secondary)
+                        );
 
-                        this.new = await m.reply({
-                            embeds: [confirmAddrEmbed],
-                            components: [confirm_row]
-                        });
+                    this.new = await m.reply(confirmAddrEmbed.row(confirm_row).msg());
 
-                        const confirmFilter = (i) => i.user.id === this.sender;
-                        const confirmCollector = m.channel.createMessageComponentCollector({
-                            filter: confirmFilter,
-                            time: 604800000
-                        });
+                    const confirmFilter = (i) => i.user.id === this.sender;
+                    const confirmCollector = m.channel.createMessageComponentCollector({
+                        filter: confirmFilter,
+                        time: 604800000
+                    });
 
-                        confirmCollector.on('collect', async (confirmAction) => {
-                            if (confirmAction.customId === 'confirmLTC') {
-                                if (!confirmAction.replied) await confirmAction.deferUpdate();
+                    confirmCollector.on('collect', async (confirmAction) => {
+                        if (confirmAction.customId === 'confirmLTC') {
+                            if (!confirmAction.replied) await confirmAction.deferUpdate();
 
-                                const confirmedBySenderEmbed = new EmbedBuilder()
-                                    .setTitle(`${E.green_tick}  Confirmed by Sender`)
-                                    .setDescription(`> <@${this.sender}> has confirmed the trade details.`)
-                                    .addFields({
-                                        name: 'Receiver Address',
-                                        value: `\`${ltcAddress}\``,
-                                        inline: false
-                                    }, {
-                                        name: 'Received Amount',
-                                        value: `\`${this.receivedAmount}\``,
-                                        inline: true
-                                    }, {
-                                        name: 'Timestamp',
-                                        value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
-                                        inline: true
-                                    })
-                                    .setColor(0x00FF00)
-                                    .setTimestamp();
-
-                                await this.new.edit({
-                                    components: [],
-                                    embeds: [confirmedBySenderEmbed]
-                                });
-                                addressCollector.stop();
-                                await this.sendLTC(ltcAddress);
+                            await this.new.edit(UI.card(UI.COLORS.success)
+                                .title('Confirmed by Sender', E.green_tick)
+                                .divider()
+                                .text(`> ${this.sender} has confirmed the trade details.`)
+                                .fields(
+                                    ['Receiver Address', `\`${ltcAddress}\``],
+                                    ['Received Amount', `\`${this.receivedAmount}\``],
+                                    ['Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`],
+                                )
+                                .msg({ allowPing: true }));
+                            addressCollector.stop();
+                            await this.sendLTC(ltcAddress);
 
                             } else if (confirmAction.customId === 'resetLTC') {
                                 await confirmAction.reply({
@@ -2257,10 +2077,6 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
 
     async handleRelease(interaction) {
-        const confirm_embed = new EmbedBuilder()
-            .setTitle('> Confirm Payment Release')
-            .setDescription(` - Do You Confirm That You Want To Release Funds To :  <@${this.receiver}>?`)
-            .setColor(0xFFFF33);
 
         const confirm_row = new ActionRowBuilder()
             .addComponents(
@@ -2274,10 +2090,13 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                     .setStyle(ButtonStyle.Secondary)
             );
 
-        this.x = await interaction.editReply({
-            embeds: [confirm_embed],
-            components: [confirm_row]
-        });
+        this.x = await interaction.editReply(UI.card(UI.COLORS.warn)
+            .title('Confirm Payment Release')
+            .divider()
+            .text(`- Do You Confirm That You Want To Release Funds To :  ${this.receiver}?`)
+            .foot('Only the sender can release the funds', { ts: Math.floor(Date.now() / 1000) })
+            .row(confirm_row)
+            .msg());
 
         const confirmFilter = (i) => i.user.id === interaction.user.id;
         const confirmCollector = interaction.channel.createMessageComponentCollector({
@@ -2296,31 +2115,17 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                     console.error('Failed to defer interaction:', error);
                 }
                 this.disableButtons(this.x)
-                const paymentReleasedEmbed = new EmbedBuilder()
-                    .setTitle(`> ${E.elite_LTC}  Payment Released`)
-
-
+                const releasedCard = UI.card(UI.COLORS.success)
+                    .title('Payment Released', E.elite_LTC)
+                    .divider();
                 if (this.dealAmount > this.usd) {
-                    paymentReleasedEmbed.addFields({
-                        name: '⚠️ Alert',
-                        value: 'The deal was finalized with a lower amount than the agreed upon deal value'
-                    });
+                    releasedCard.field('⚠️ Alert', 'The deal was finalized with a lower amount than the agreed upon deal value');
                 }
+                releasedCard
+                    .text(`Payment of **${this.usd} ${this.currency}** has been released to ${this.receiver}. \n\n > **Please provide your LTC address to receive the funds.**`)
+                    .foot('Payment Released', { ts: Math.floor(Date.now() / 1000) });
 
-                paymentReleasedEmbed.setDescription(`Payment of **${this.usd} ${this.currency}** has been released to <@${this.receiver}>. \n\n > **Please provide your LTC address to receive the funds.**`)
-                    .setColor(0x00FF00)
-                    .setTimestamp()
-                    .setFooter({
-                        text: 'Payment Released'
-                    });
-
-
-
-                await this.thread.send({
-                    content: `<@${this.receiver}>`,
-                    embeds: [paymentReleasedEmbed],
-                    components: []
-                });
+                await this.thread.send(releasedCard.msg({ allowPing: true }));
 
                 const addressFilter = (m) => m.author.id === this.receiver;
                 const addressCollector = interaction.channel.createMessageCollector({
@@ -2343,14 +2148,11 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
                     await m.react(`${E.green_tick}`);
 
-                    const confirmAddrEmbed = new EmbedBuilder()
-                        .setTitle(`${E.elite_CautionWarning}  Confirm LTC Address`)
-                        .setDescription(`> You entered the following LTC address:\n\n\`${ltcAddress}\`\n\n**Is this correct?**`)
-                        .setColor(0x00FF00)
-                        .setTimestamp()
-                        .setFooter({
-                            text: 'Confirm your LTC address'
-                        });
+                    const confirmAddrEmbed = UI.card(0x303238)
+                        .title('Confirm LTC Address', E.elite_LTC)
+                        .divider()
+                        .text(`**You entered the following LTC address:\n\n\`${ltcAddress}\`\n\nIs this correct?**`)
+                        .foot('Confirm your LTC address', { ts: Math.floor(Date.now() / 1000) });
 
                     const confirm_row = new ActionRowBuilder()
                         .addComponents(
@@ -2365,10 +2167,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                                 .setStyle(ButtonStyle.Secondary)
                         );
 
-                    this.new = await m.reply({
-                        embeds: [confirmAddrEmbed],
-                        components: [confirm_row]
-                    });
+                    this.new = await m.reply(confirmAddrEmbed.row(confirm_row).msg());
 
                     const confirmFilter = (i) => i.user.id === this.receiver;
                     const confirmCollector = m.channel.createMessageComponentCollector({
@@ -2380,29 +2179,16 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                         if (confirmAction.customId === 'confirmLTC') {
                             if (!confirmAction.replied) await confirmAction.deferUpdate();
 
-                            const confirmedByReceiverEmbed = new EmbedBuilder()
-                                .setTitle(`${E.green_tick}  Confirmed by Receiver`)
-                                .setDescription(`> <@${this.receiver}> has confirmed the trade details.`)
-                                .addFields({
-                                    name: 'Receiver Address',
-                                    value: `\`${ltcAddress}\``,
-                                    inline: false
-                                }, {
-                                    name: 'Received Amount',
-                                    value: `\`${this.receivedAmount}\``,
-                                    inline: true
-                                }, {
-                                    name: 'Timestamp',
-                                    value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
-                                    inline: true
-                                })
-                                .setColor(0x00FF00)
-                                .setTimestamp();
-
-                            await this.new.edit({
-                                components: [],
-                                embeds: [confirmedByReceiverEmbed]
-                            });
+                            await this.new.edit(UI.card(UI.COLORS.success)
+                                .title('Confirmed by Receiver', E.green_tick)
+                                .divider()
+                                .text(`> ${this.receiver} has confirmed the trade details.`)
+                                .fields(
+                                    ['Receiver Address', `\`${ltcAddress}\``],
+                                    ['Received Amount', `\`${this.receivedAmount}\``],
+                                    ['Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`],
+                                )
+                                .msg({ allowPing: true }));
                             addressCollector.stop();
                             await this.sendLTC(ltcAddress);
                         } else if (confirmAction.customId === 'resetLTC') {
