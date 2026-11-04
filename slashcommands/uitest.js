@@ -36,7 +36,7 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const avatar = client.user.displayAvatarURL({ size: 256 });
         const now = Math.floor(Date.now() / 1000);
@@ -70,7 +70,8 @@ module.exports = {
                 new ButtonBuilder().setCustomId('uitest_inert2').setLabel('Secondary Too').setStyle(ButtonStyle.Primary),
                 new ButtonBuilder().setCustomId('uitest_inert3').setLabel('Danger Style').setStyle(ButtonStyle.Danger),
             )
-            .foot('UI Test • you just saw H1/H2/H3, dividers, fields, quote, code, section', { ts: now }));
+            .foot('UI Test • you just saw H1/H2/H3, dividers, fields, quote, code, section', { ts: now })
+            .msg());
 
         /* --------------------------------------------------------- *
          * 1.5 - tiny harness: clicking rows toggles their buttons
@@ -82,7 +83,7 @@ module.exports = {
         }).on('collect', async (i) => {
             await i.reply({
                 content: `${E.green_tick} Row received \`${i.customId}\` — same collector path as the trade buttons.`,
-                ephemeral: true,
+                flags: MessageFlags.Ephemeral,
             });
         });
 
@@ -101,10 +102,10 @@ module.exports = {
             ])
             .file('uitest-file.png')
             .foot('Media demo')
-        , {
-            files: [{ attachment: fs.readFileSync('./assets/emojis/Money.png'), name: 'uitest-file.png' }],
-            ephemeral: true,
-        });
+            .msg({
+                ephemeral: true,
+                files: [{ attachment: fs.readFileSync('./assets/emojis/Money.png'), name: 'uitest-file.png' }],
+            }));
 
         /* --------------------------------------------------------- *
          * 3 - Accent palette: 5 containers in ONE CV2 message
@@ -142,7 +143,7 @@ module.exports = {
                 new ButtonBuilder().setCustomId('uitest_probe').setLabel('Probe Button').setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder().setCustomId('uitest_probe2').setLabel('Second Probe').setStyle(ButtonStyle.Secondary),
             )
-        , { ephemeral: true });
+            .msg({ ephemeral: true }));
 
         demo.createMessageComponentCollector({
             filter: (i) => i.user.id === interaction.user.id && i.customId.startsWith('uitest_'),
@@ -158,7 +159,7 @@ module.exports = {
                 }
                 await i.reply({
                     content: `${E.check} Probe \`${i.customId}\` collected live on an ephemeral CV2 message.`,
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             } catch (err) {
                 console.error('[uitest] toggle failed:', err);
