@@ -2262,10 +2262,10 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
         while (attempt < maxAttempts) {
             try {
-                //const apiKey = await this.getNextApiKey();
+                //const apiKey = await this.getNextApiKey(); // BlockCypher token pool — irrelevant for CryptoCompare
                 //const axiosWithProxy = await this.AxiosInstance();
 
-                const apiUrl = `https://min-api.cryptocompare.com/data/price?fsym=${this.currency}&tsyms=LTC`;
+                const apiUrl = `https://min-api.cryptocompare.com/data/price?fsym=${this.currency}&tsyms=LTC&apiKey=${config.cryptocompare}`;
                 const response = await axios.get(apiUrl);
                 const ltcrate = response.data.LTC;
 
@@ -2303,7 +2303,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 let ltcPrice;
 
                 if (this.currency === "EUR") {
-                    const endpoint = `https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=${this.currency}`;
+                    const endpoint = `https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=${this.currency}&apiKey=${config.cryptocompare}`;
                     const response = await axios.get(endpoint);
                     const data = response.data.EUR;
 		            //this.usdbaldata = data;
@@ -2315,7 +2315,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                     console.log(data)
                     console.log(this.usd)
                 } else {
-                    const endpoint = `https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=${this.currency}`;
+                    const endpoint = `https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=${this.currency}&apiKey=${config.cryptocompare}`;
                     const response = await axios.get(endpoint);
                     const data = response.data.USD;
 		            //this.usdbaldata = data;

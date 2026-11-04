@@ -587,6 +587,9 @@ Explorer links are built as `https://live.blockcypher.com/ltc/tx/{txid}`.
 | `GET /data/price?fsym={EUR\|USD}&tsyms=LTC` | `UsdToLtc(amount)` | fiat deal → LTC to request (+ fee buffer)      |
 | `GET /data/price?fsym=LTC&tsyms={EUR\|USD}` | `ltcToUsd(amount)` | received LTC → fiat (stored as `current_rate`) |
 
+Every request is signed with `&apiKey=${config.cryptocompare}` — min-api rejects
+keyless calls with `401`, so a real key is required (free tier is enough).
+
 3 attempts, then `null` / error surfaces upstream.
 
 ### Discord REST (direct, beyond discord.js)
@@ -628,6 +631,7 @@ Explorer links are built as `https://live.blockcypher.com/ltc/tx/{txid}`.
 | `xpub`               | string        | Tatum LTC xpub — the "family" of generated escrow addresses                                                                        |
 | `mnemonic`           | string        | 12-word mnemonic to derive per-index **private keys**                                                                              |
 | `apiToken`           | string[5]     | BlockCypher token **pool** (rotated randomly, never the same token twice in a row)                                                 |
+| `cryptocompare`      | string        | CryptoCompare API key (free tier) — signs both min-api rate calls; keyless requests get `401`                                       |
 | `timeout`            | string (ms)   | base confirmation-poll interval (plus 1.5–2.5 s jitter)                                                                            |
 | `timeout2`           | string (ms)   | secondary poll interval                                                                                                            |
 | `client_role`        | string (opt.) | Role ID to hand both parties after a completed deal                                                                                |
