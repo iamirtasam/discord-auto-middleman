@@ -66,7 +66,7 @@ module.exports.createPanel = async (client, interaction) => {
             .heading('How the fees work?', { emoji: E.correct, level: 3 })
             .text(`When you send the money to the address, the bot will detect the amount and will calculate the fees. The fees are 0.25% of the amount of the deal, in addition to blockchain fees, which are not included in the service fees. The fees are deducted from the amount of the deal when releasing the funds to the seller`)
             .divider()
-            .foot('Made by Joystoss - AutoMM')
+            .foot('irtasam - AutoMM')
             .row(new ActionRowBuilder().addComponents(autoMMButton));
 
         const panelChannel = await client.channels.fetch(panel_channel_id);

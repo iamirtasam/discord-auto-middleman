@@ -180,7 +180,7 @@ module.exports = {
                         .divider()
                         .field('Transaction ID', `[${this.txId}](https://live.blockcypher.com/ltc/tx/${this.txId})`)
                         .field('Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`)
-                        .foot(`${E.refresh} Made by Joystoss - Trade Completed`);
+                        .foot(`${E.refresh} irtasam - Trade Completed`);
                     console.log('released card built')
                     interaction.editReply(releasedCard().msg({ content: null }))
                     await interaction.channel.send(releasedCard().msg());

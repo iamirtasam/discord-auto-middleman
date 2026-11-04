@@ -9,7 +9,7 @@
  *         .title('Confirm Deal Details', E.check)
  *         .divider()
  *         .field('Deal Amount', '0.5 LTC')
- *         .foot('Deal Confirmation - Made by Joystoss', { ts: Date.now() / 1000 })
+ *         .foot('Deal Confirmation - irtasam', { ts: Date.now() / 1000 })
  *         .row(confirmButton, resetButton, cancelButton);
  *
  *     await thread.send(card.msg());                      // normal message

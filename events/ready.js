@@ -16,11 +16,11 @@ module.exports = {
         await require('../database/mongodb')(client);
         await wait(1000)
         await require('../functions/emojiSync')(client);
-        console.log(`Welcome to Middleman Bot, made by Joystoss \n\n✅ Bot is Ready to use! Logged in as ${client.user.tag}`);
+        console.log(`Welcome to Middleman Bot, made by irtasam \n\n✅ Bot is Ready to use! Logged in as ${client.user.tag}`);
 
         await client.user.setPresence({
             activities: [{
-                name: `Made by Joystoss`,
+                name: `irtasam`,
                 type: ActivityType.Watching
             }],
             status: 'dnd',

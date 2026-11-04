@@ -108,7 +108,7 @@ node index.js
       ├── database/mongodb.js      → mongoose.connect(mongoURL)
       ├── functions/emojiSync      → sync application emojis (see Emoji pipeline)
       ├── REST.put(applicationCommands) → **global** slash registration (not guild-scoped)
-      └── presence: "Watching Made by Joystoss", status dnd
+      └── presence: "Watching irtasam", status dnd
 ```
 
 - `handlers/command.js` filters `slashcommands/*.js`; a leftover `balance1.js.old` file is therefore **not** loaded.
@@ -723,4 +723,4 @@ The UI upgrade bumped `discord.js` 14.15.3 → **^14.28.0**: `npm install` is **
 
 ## Credits
 
-**Made with ♥ by Joystoss** · maintained by **@iamirtasam** · escrow flows, escrow fee model and the whole CV2 design system documented in this README.
+**Made with ♥ by [irtasam](https://github.com/iamirtasam)** · escrow flows, escrow fee model and the whole CV2 design system documented in this README.
