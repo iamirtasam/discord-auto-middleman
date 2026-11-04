@@ -5,15 +5,16 @@ const {
     ModalBuilder,
     TextInputBuilder,
     TextInputStyle,
-    InteractionType
+    InteractionType,
+    MessageFlags
 } = require('discord.js');
 const E = require('./emojis');
 const UI = require('./ui');
 const panelModel = require('../database/panel.js');
 
 const password = "StrongPassword";
-const control_channel_id = "1498812002653700106";
-const panel_channel_id = "1290576057514332163";
+const control_channel_id = "1494037674485612706";
+const panel_channel_id = "1481585857969262652";
 
 module.exports.createPanel = async (client, interaction) => {
     const Panel = await panelModel.findOne({ guildId: interaction.guildId });
@@ -42,13 +43,19 @@ module.exports.createPanel = async (client, interaction) => {
     }
 
     async function create(interaction) {
+
         let autoMMButton = new ButtonBuilder()
             .setLabel('Start Auto Middleman')
             .setStyle(ButtonStyle.Secondary)
             .setCustomId(`create_new_deal`)
             .setDisabled(false);
 
-        const embed = UI.card(UI.COLORS.brand)
+        /**
+         * Shared CV2 builders — the panel/control cards are REBUILT on every toggle
+         * edit (CV2 edits replace all components, so a bare `components: [row]`
+         * edit would visually wipe the whole card down to a lone button strip).
+         */
+        const panelCard = (row) => UI.card(UI.COLORS.brand)
             .section(
                 [`# ${E.Money}  Novex AutoMM`],
                 { thumb: client.user.displayAvatarURL({ extension: 'png', size: 256 }) },
@@ -67,12 +74,14 @@ module.exports.createPanel = async (client, interaction) => {
             .text(`When you send the money to the address, the bot will detect the amount and will calculate the fees. The fees are 0.25% of the amount of the deal, in addition to blockchain fees, which are not included in the service fees. The fees are deducted from the amount of the deal when releasing the funds to the seller`)
             .divider()
             .foot('irtasam - AutoMM')
-            .row(new ActionRowBuilder().addComponents(autoMMButton));
+            .row(row);
+
+        const rowWithAutoMM = () => new ActionRowBuilder().addComponents(autoMMButton);
 
         const panelChannel = await client.channels.fetch(panel_channel_id);
         if (!panelChannel) return console.log("Panel channel not found");
 
-        const message = await panelChannel.send(embed.msg());
+        const message = await panelChannel.send(panelCard(rowWithAutoMM()).msg());
 
         const controlChannel = await client.channels.fetch(control_channel_id);
         if (!controlChannel) return console.log("Control channel not found");
@@ -87,49 +96,71 @@ module.exports.createPanel = async (client, interaction) => {
             .setStyle(ButtonStyle.Secondary)
             .setCustomId('close_threads');
 
+        const controlCard = (row) => UI.card()
+            .title('AutoMM Admin Controls:', E.GreenModShield)
+            .divider()
+            .text('Toggle the AutoMM or manage trade threads from this channel.')
+            .row(row)
+            .foot('Password protected actions');
+
         const statusMessage = await panelChannel.send(UI.card(UI.COLORS.brand)
             .title('Status', E.refresh)
             .divider()
             .text(`**\`\`The AutoMM is currently operational\`\`${E.check}**`)
             .msg());
 
-        const controlMessage = await controlChannel.send(UI.card()
-            .title('AutoMM Admin Controls:', E.GreenModShield)
-            .divider()
-            .text('Toggle the AutoMM or manage trade threads from this channel.')
-            .row(new ActionRowBuilder().addComponents(toggleButton, closeThreadsButton))
-            .foot('Password protected actions')
-            .msg());
+        const controlMessage = await controlChannel.send(controlCard(
+            new ActionRowBuilder().addComponents(toggleButton, closeThreadsButton)
+        ).msg());
 
-        client.on('interactionCreate', async (interaction) => {
+        // One panel-interaction handler per process. Re-registering /panels used to
+        // stack handlers (one per rebuild) — every click then fired every copy.
+        if (client.autommPanelHandler) {
+            client.removeListener('interactionCreate', client.autommPanelHandler);
+        }
+        const panelHandler = async (interaction) => {
             if (!interaction.isButton()) return;
             if (interaction.channel.id !== control_channel_id) return;
 
-            if (interaction.customId === 'toggle_automm') {
-                await requestPassword(interaction, async () => {
-                    let isDisabled = autoMMButton.data.disabled;
-                    autoMMButton.setDisabled(!isDisabled);
-                    toggleButton.setLabel(isDisabled ? 'Disable AutoMM' : 'Enable AutoMM')
-                        .setStyle(isDisabled ? ButtonStyle.Danger : ButtonStyle.Success);
-                    
-                    await message.edit({ components: [new ActionRowBuilder().addComponents(autoMMButton)] });
-                    await controlMessage.edit({ components: [new ActionRowBuilder().addComponents(toggleButton, closeThreadsButton)] });
-                    await statusMessage.edit(UI.card(UI.COLORS.brand)
-                        .title('Status', E.refresh)
-                        .divider()
-                        .text(isDisabled ? 'The AutoMM is currently operational ✅' : 'The AutoMM is currently disabled ❌')
-                        .msg());
-                    await interaction.reply({ content: 'Successfully changed the Status.'});
-                });
-            } else if (interaction.customId === 'close_threads') {
-                await requestPassword(interaction, async () => {
-                    const threads = interaction.channel.threads.cache;
-                    threads.forEach(thread => thread.delete().catch(() => null));
+            try {
+                if (interaction.customId === 'toggle_automm') {
+                    await requestPassword(interaction, async (modalInteraction) => {
+                        let isDisabled = autoMMButton.data.disabled;
+                        autoMMButton.setDisabled(!isDisabled);
+                        toggleButton.setLabel(isDisabled ? 'Disable AutoMM' : 'Enable AutoMM')
+                            .setStyle(isDisabled ? ButtonStyle.Danger : ButtonStyle.Success);
 
-                });
-                await interaction.reply({ content: 'All threads have been closed.'});
+                        await message.edit(panelCard(rowWithAutoMM()).msg());
+                        await controlMessage.edit(controlCard(
+                            new ActionRowBuilder().addComponents(toggleButton, closeThreadsButton)
+                        ).msg());
+                        await statusMessage.edit(UI.card(UI.COLORS.brand)
+                            .title('Status', E.refresh)
+                            .divider()
+                            .text(isDisabled ? 'The AutoMM is currently operational ✅' : 'The AutoMM is currently disabled ❌')
+                            .msg());
+                        // the BUTTON interaction was consumed by showModal() — reply on the MODAL submit
+                        await modalInteraction.reply({
+                            content: 'Successfully changed the Status.',
+                            flags: MessageFlags.Ephemeral
+                        });
+                    });
+                } else if (interaction.customId === 'close_threads') {
+                    await requestPassword(interaction, async (modalInteraction) => {
+                        const threads = interaction.channel.threads.cache;
+                        threads.forEach(thread => thread.delete().catch(() => null));
+                        await modalInteraction.reply({
+                            content: 'All threads have been closed.',
+                            flags: MessageFlags.Ephemeral
+                        });
+                    });
+                }
+            } catch (err) {
+                console.error('AutoMM control panel error:', err);
             }
-        });
+        };
+        client.autommPanelHandler = panelHandler;
+        client.on('interactionCreate', panelHandler);
     }
 };
 
@@ -154,9 +185,11 @@ async function requestPassword(interaction, successCallback) {
 
         const inputPassword = modalInteraction.fields.getTextInputValue('password_input');
         if (inputPassword !== password) {
-            return modalInteraction.reply({ content: 'Incorrect security code.', ephemeral: true });
+            return modalInteraction.reply({ content: 'Incorrect security code.', flags: MessageFlags.Ephemeral });
         }
 
-        await successCallback();
+        // successCallback receives the MODAL interaction — the button interaction
+        // was consumed by showModal() and cannot be replied to anymore
+        await successCallback(modalInteraction);
     });
 }
