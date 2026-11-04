@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Log icon</title>
+
+    <rect x="4.5" y="2.5" width="11" height="15" rx="1.5"/>
+    <line x1="7" y1="6" x2="13" y2="6"/>
+    <line x1="7" y1="9" x2="13" y2="9"/>
+    <line x1="7" y1="12" x2="13" y2="12"/>
+    <line x1="7" y1="15" x2="10.5" y2="15"/>
+</svg>

@@ -34,7 +34,7 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "irtasam (https://github.com/iamirtasam)",
   "license": "ISC",
   "description": ""
 }

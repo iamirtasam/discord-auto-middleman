@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Lock icon</title>
+
+    <rect x="5" y="9" width="10" height="7.5" rx="1.6"/>
+    <path d="M7.2 9 V6.6 a2.8 2.8 0 0 1 5.6 0 V9"/>
+    <circle cx="10" cy="12.5" r="1" fill="#1ec42c" stroke="none"/>
+</svg>

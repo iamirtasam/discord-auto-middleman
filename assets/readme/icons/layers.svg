@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Layers icon</title>
+
+    <path d="M10 3 L17 6.5 L10 10 L3 6.5 Z"/>
+    <polyline points="3,10.2 10,13.7 17,10.2"/>
+    <polyline points="3,13.8 10,17.3 17,13.8"/>
+</svg>

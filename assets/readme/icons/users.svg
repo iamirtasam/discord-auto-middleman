@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Users icon</title>
+
+    <circle cx="7.5" cy="7" r="2.6"/>
+    <path d="M2.8 16.4 c0 -3.2 2 -4.8 4.7 -4.8 c2.7 0 4.7 1.6 4.7 4.8"/>
+    <circle cx="14.2" cy="7.4" r="2.1"/>
+    <path d="M13 11.5 c2.6 -0.4 4.6 1.2 4.6 4.2"/>
+</svg>

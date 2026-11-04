@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Architecture icon</title>
+
+    <rect x="2.5" y="2.5" width="15" height="4.5" rx="1"/>
+    <rect x="2.5" y="13" width="6.5" height="4.5" rx="1"/>
+    <rect x="11" y="13" width="6.5" height="4.5" rx="1"/>
+    <line x1="6" y1="7" x2="5.75" y2="13"/>
+    <line x1="14" y1="7" x2="14.25" y2="13"/>
+</svg>

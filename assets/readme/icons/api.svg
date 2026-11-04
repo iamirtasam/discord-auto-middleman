@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Api icon</title>
+
+    <circle cx="10" cy="10" r="3.2"/>
+    <line x1="10" y1="2.5" x2="10" y2="6.8"/>
+    <line x1="10" y1="13.2" x2="10" y2="17.5"/>
+    <line x1="2.5" y1="10" x2="6.8" y2="10"/>
+    <line x1="13.2" y1="10" x2="17.5" y2="10"/>
+</svg>

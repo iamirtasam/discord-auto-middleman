@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Support icon</title>
+
+    <path d="M4 11 a6 6 0 0 1 12 0"/>
+    <rect x="2.6" y="10.5" width="2.8" height="4.4" rx="1.2"/>
+    <rect x="14.6" y="10.5" width="2.8" height="4.4" rx="1.2"/>
+    <path d="M16 15.2 c0 1.6 -2 2.2 -3.4 2.2"/>
+</svg>

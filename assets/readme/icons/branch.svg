@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Branch icon</title>
+
+    <circle cx="5.5" cy="5" r="2.3"/>
+    <circle cx="5.5" cy="15" r="2.3"/>
+    <circle cx="14.5" cy="9" r="2.3"/>
+    <line x1="5.5" y1="7.3" x2="5.5" y2="12.7"/>
+    <path d="M14.5 6.7 C14.5 4.5 10 5.2 7.6 4.6"/>
+</svg>

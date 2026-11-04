@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="88" height="22" viewBox="0 0 88 22" role="img">
+  <title>Node ≥ 18</title>
+  <rect x="0.5" y="0.5" width="87" height="21" rx="6" fill="#0b170c" stroke="#1ec42c"/>
+  <text x="44" y="15" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="11" fill="#e6ffe9">Node ≥ 18</text>
+</svg>

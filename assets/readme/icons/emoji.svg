@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Emoji icon</title>
+
+    <circle cx="10" cy="10" r="7"/>
+    <circle cx="7.4" cy="8.3" r="0.7" fill="#1ec42c" stroke="none"/>
+    <circle cx="12.6" cy="8.3" r="0.7" fill="#1ec42c" stroke="none"/>
+    <path d="M6.8 11.8 a3.6 3.6 0 0 0 6.4 0"/>
+</svg>

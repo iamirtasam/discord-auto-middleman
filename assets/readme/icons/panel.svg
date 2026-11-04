@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Panel icon</title>
+
+    <rect x="2.5" y="3.5" width="15" height="13" rx="1.6"/>
+    <line x1="7.5" y1="3.5" x2="7.5" y2="16.5"/>
+    <line x1="9.5" y1="6.5" x2="15" y2="6.5"/>
+    <line x1="9.5" y1="9" x2="15" y2="9"/>
+</svg>

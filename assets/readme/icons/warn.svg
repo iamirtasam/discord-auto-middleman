@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" role="img" fill="none" stroke="#1ec42c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Warn icon</title>
+
+    <path d="M10 3 L18 16.8 H2 Z"/>
+    <line x1="10" y1="8" x2="10" y2="12.4"/>
+    <circle cx="10" cy="14.6" r="0.7" fill="#1ec42c" stroke="none"/>
+</svg>
