@@ -2262,15 +2262,16 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
         while (attempt < maxAttempts) {
             try {
-                //const apiKey = await this.getNextApiKey(); // BlockCypher token pool — irrelevant for CryptoCompare
+                //const apiKey = await this.getNextApiKey(); // BlockCypher token pool — CoinGecko is keyless
                 //const axiosWithProxy = await this.AxiosInstance();
 
-                const apiUrl = `https://min-api.cryptocompare.com/data/price?fsym=${this.currency}&tsyms=LTC&apiKey=${config.cryptocompare}`;
+                // CoinGecko quotes fiat PER LTC (keyless):
+                const apiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=litecoin&vs_currencies=${this.currency.toLowerCase()}`;
                 const response = await axios.get(apiUrl);
-                const ltcrate = response.data.LTC;
+                const ltcrate = response.data?.litecoin?.[this.currency.toLowerCase()];
 
                 if (ltcrate) {
-                    const ltcAmount = amount * ltcrate;
+                    const ltcAmount = amount / ltcrate;
                     return ltcAmount;
                 } else {
                     throw new Error('Invalid data structure in API response');
@@ -2303,9 +2304,9 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 let ltcPrice;
 
                 if (this.currency === "EUR") {
-                    const endpoint = `https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=${this.currency}&apiKey=${config.cryptocompare}`;
+                    const endpoint = `https://api.coingecko.com/api/v3/simple/price?ids=litecoin&vs_currencies=${this.currency.toLowerCase()}`;
                     const response = await axios.get(endpoint);
-                    const data = response.data.EUR;
+                    const data = response.data.litecoin.eur;
 		            //this.usdbaldata = data;
                     ltcPrice = data;
                     this.current_rate = data;
@@ -2315,9 +2316,9 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                     console.log(data)
                     console.log(this.usd)
                 } else {
-                    const endpoint = `https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=${this.currency}&apiKey=${config.cryptocompare}`;
+                    const endpoint = `https://api.coingecko.com/api/v3/simple/price?ids=litecoin&vs_currencies=${this.currency.toLowerCase()}`;
                     const response = await axios.get(endpoint);
-                    const data = response.data.USD;
+                    const data = response.data.litecoin.usd;
 		            //this.usdbaldata = data;
                     ltcPrice = data;
                     this.current_rate = data;

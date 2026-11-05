@@ -65,7 +65,7 @@ A self-hosted Discord bot that acts as an **automated Litecoin (LTC) middleman /
 01. **PANEL →** user clicks *Start Auto Middleman* → bot opens a **private thread** in the configured support channel.
 02. **PARTIES →** the thread owner names the counterparty; both pick Sender/Receiver and confirm (with reset/cancel).
 03. **DEAL →** currency (EUR/USD) is chosen and double-confirmed; the sender types the fiat **deal amount**.
-04. **ADDR →** the bot converts fiat → LTC (CryptoCompare), adds the network-fee buffer, and derives a **one-time deposit address + private key pair from an xpub/mnemonic index** (Tatum).
+04. **ADDR →** the bot converts fiat → LTC (CoinGecko), adds the network-fee buffer, and derives a **one-time deposit address + private key pair from an xpub/mnemonic index** (Tatum).
 05. **INVOICE →** a CV2 payment card with **Copy** address, **Show QR** buttons and a blurred `||@sender||` pin.
 06. **WATCH →** a polling loop on BlockCypher detects incoming (even unconfirmed) transactions.
 07. **RECONCILE →** if the received LTC is less than agreed, the bot offers *Send More* (fresh remaining-amount invoice) or *Continue* (proceed with what landed).
@@ -79,7 +79,7 @@ A self-hosted Discord bot that acts as an **automated Litecoin (LTC) middleman /
 ## <img src="assets/readme/icons/architecture.svg" width="20" height="20" alt=""> Architecture
 
 <p align="center">
-  <img src="assets/readme/architecture.svg" alt="Architecture: index.js boots handlers and events; events call functions; functions call Tatum, BlockCypher, CryptoCompare, trades.json, MongoDB, webhooks and Discord REST" width="100%">
+  <img src="assets/readme/architecture.svg" alt="Architecture: index.js boots handlers and events; events call functions; functions call Tatum, BlockCypher, CoinGecko, trades.json, MongoDB, webhooks and Discord REST" width="100%">
 </p>
 
 ### File map
@@ -193,7 +193,7 @@ Fans out three Tatum operations in one `Promise.all`:
 
 | Promise         | Tatum SDK call                                                   | Result                 |
 |-----------------|------------------------------------------------------------------|------------------------|
-| Fiat → LTC      | *(CryptoCompare, not Tatum)* `UsdToLtc(dealAmount)`              | LTC gross for the deal |
+| Fiat → LTC      | *(CoinGecko, not Tatum)* `UsdToLtc(dealAmount)`              | LTC gross for the deal |
 | Deposit address | `ltcGenerateAddress({ xpub, index })` → `this.addy`              | one-time LTC address   |
 | Private key     | `ltcGenerateAddressPrivateKey({ index, mnemonic })` → `this.key` | matching sweep key     |
 
@@ -220,7 +220,7 @@ QR flow (`interactionCreate`): builds `litecoin:{addy}?amount={amount}` URI → 
 
 1. `checkTransactions()` → `GET https://api.blockcypher.com/v1/ltc/main/addrs/{this.addy}/` with a **rotating API key** (`getNextApiKey` picks a random token from `config.apiToken[]`, never repeating the previous one) and 3 attempts with exponential backoff (2^n seconds).
 2. Detection condition (either): `total_received + unconfirmed_balance` grew beyond `receivedAmount`, **or** a new `unconfirmed_txrefs` entry appeared (`length ≥ sendMoreCounter`).
-3. On detection: `receivedAmount` (sar 8-dec LTC) and `usd` (via `ltcToUsd` → CryptoCompare, stored with `current_rate`) are finalised and persisted (`this.progress = "Money Received …"`).
+3. On detection: `receivedAmount` (sar 8-dec LTC) and `usd` (via `ltcToUsd` → CoinGecko, stored with `current_rate`) are finalised and persisted (`this.progress = "Money Received …"`).
 
 **Not enough arrived?** → `incuff()` posts the **Amount Mismatch** card (blurred `||<@sender><@receiver>||` pin, `Send More` / `Continue` row):
 
@@ -580,15 +580,16 @@ Retry policy per call: **3 attempts / 5 s spacing** (sequential `await` chain in
 
 Explorer links are built as `https://live.blockcypher.com/ltc/tx/{txid}`.
 
-### CryptoCompare (`min-api.cryptocompare.com`)
+### CoinGecko (`api.coingecko.com`) — keyless
 
-| Endpoint                                   | Used by            | Purpose                                        |
-|--------------------------------------------|--------------------|------------------------------------------------|
-| `GET /data/price?fsym={EUR\|USD}&tsyms=LTC` | `UsdToLtc(amount)` | fiat deal → LTC to request (+ fee buffer)      |
-| `GET /data/price?fsym=LTC&tsyms={EUR\|USD}` | `ltcToUsd(amount)` | received LTC → fiat (stored as `current_rate`) |
+| Endpoint                                                                    | Used by            | Purpose                                        |
+|-----------------------------------------------------------------------------|--------------------|------------------------------------------------|
+| `GET /api/v3/simple/price?ids=litecoin&vs_currencies={usd\|eur}`            | `UsdToLtc(amount)` | fiat deal → LTC to request (+ fee buffer)      |
+| same call, `litecoin.{usd\|eur}` field                                      | `ltcToUsd(amount)` | received LTC → fiat (stored as `current_rate`) |
 
-Every request is signed with `&apiKey=${config.cryptocompare}` — min-api rejects
-keyless calls with `401`, so a real key is required (free tier is enough).
+Aggregated market price, **quoted fiat per LTC** — `UsdToLtc` divides by it,
+`ltcToUsd` multiplies. Keyless and free; replaced CoinGecko min-api, which
+merged into CoinDesk's Data API (now key-required — keyless requests get `401`).
 
 3 attempts, then `null` / error surfaces upstream.
 
@@ -631,7 +632,6 @@ keyless calls with `401`, so a real key is required (free tier is enough).
 | `xpub`               | string        | Tatum LTC xpub — the "family" of generated escrow addresses                                                                        |
 | `mnemonic`           | string        | 12-word mnemonic to derive per-index **private keys**                                                                              |
 | `apiToken`           | string[5]     | BlockCypher token **pool** (rotated randomly, never the same token twice in a row)                                                 |
-| `cryptocompare`      | string        | CryptoCompare API key (free tier) — signs both min-api rate calls; keyless requests get `401`                                       |
 | `timeout`            | string (ms)   | base confirmation-poll interval (plus 1.5–2.5 s jitter)                                                                            |
 | `timeout2`           | string (ms)   | secondary poll interval                                                                                                            |
 | `client_role`        | string (opt.) | Role ID to hand both parties after a completed deal                                                                                |
@@ -699,10 +699,10 @@ guildId (required) · channelId · messageId · buttonId
 ## <img src="assets/readme/icons/shield.svg" width="20" height="20" alt=""> Resilience & error handling
 
 <p align="center">
-  <img src="assets/readme/retry-backoff.svg" alt="Retry and backoff: Tatum 3 attempts 5 s apart, BlockCypher 3 attempts with 2^n s backoff and token rotation, CryptoCompare 3 attempts" width="100%">
+  <img src="assets/readme/retry-backoff.svg" alt="Retry and backoff: Tatum 3 attempts 5 s apart, BlockCypher 3 attempts with 2^n s backoff and token rotation, CoinGecko 3 attempts" width="100%">
 </p>
 
-- **Retries everywhere:** Tatum ×3 (5 s), BlockCypher ×3 (2^n backoff), CryptoCompare ×3, partner-ID input ×5.
+- **Retries everywhere:** Tatum ×3 (5 s), BlockCypher ×3 (2^n backoff), CoinGecko ×3, partner-ID input ×5.
 - **Key rotation:** BlockCypher pool; never the same token twice consecutively.
 - **Mutexed persistence:** every state save is lock-protected + queued; `trades.json` gets a Nancy snapshot after each mutation.
 - **Graceful thread-ending paths:** no-response timeouts delete the thread; terminal errors send a card telling users to use `/help` (and in some flows delete the thread).
