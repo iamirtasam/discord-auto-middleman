@@ -51,6 +51,12 @@ module.exports = {
                 let check = await UsdToLtc(this.am);
                 let USDbal = await ltcToUsd(LTCbal - fee);
 
+                if (check === null || !isFinite(check) || check <= 0) {
+                    return interaction.reply({
+                        content: `> ${E.elite_terms} Could not fetch the LTC/USD rate right now — release aborted. Try again shortly.`,
+                        flags: require('discord.js').MessageFlags.Ephemeral
+                    });
+                }
 
                 if (LTCbal <= 0) {
                     fee = 0;
@@ -85,18 +91,12 @@ module.exports = {
 
 
         async function ltcToUsd(amount) {
-            const endpoint = 'https://min-api.cryptocompare.com/data/price?fsym=LTC&tsyms=USD';
-
             try {
-                const response = await axios.get(endpoint);
-                const data = response.data;
-
-                console.log('Amount: ', amount);
-                console.log('Data: ', data);
-
-                const ltcPrice = data.USD;
+                const { data } = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=litecoin&vs_currencies=usd');
+                const ltcPrice = data?.litecoin?.usd;
+                console.log('LTC/USD price:', ltcPrice, 'amount:', amount);
+                if (typeof ltcPrice !== 'number') throw new Error('Invalid data structure in API response');
                 const usdBalance = amount * ltcPrice;
-
                 console.log('usdBalance: ', usdBalance);
                 return parseFloat(usdBalance);
             } catch (error) {
@@ -106,18 +106,12 @@ module.exports = {
         }
 
         async function UsdToLtc(amount) {
-            const endpoint = 'https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=LTC';
-
             try {
-                const response = await axios.get(endpoint);
-                const data = response.data;
-
-                if (data && data.LTC) {
-                    const ltcAmount = amount * data.LTC;
-                    return ltcAmount;
-                } else {
-                    throw new Error('Invalid data structure in API response');
-                }
+                const { data } = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=litecoin&vs_currencies=usd');
+                const ltcPrice = data?.litecoin?.usd;
+                if (typeof ltcPrice !== 'number') throw new Error('Invalid data structure in API response');
+                // fiat-per-LTC: divide to convert fiat amount into LTC
+                return amount / ltcPrice;
             } catch (error) {
                 console.error(`Error fetching USD to LTC rate: ${error.message}`);
                 return null;
