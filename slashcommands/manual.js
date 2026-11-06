@@ -60,7 +60,7 @@ module.exports = {
                     });
                 }
                 else if (LTCbal >= check) {
-                    interaction.reply({
+                    await interaction.reply({
                         content: `> ${E.elite_LTC} Requested Release  . . . `,
                         ephemeral: true
                     });
@@ -186,13 +186,14 @@ module.exports = {
                     await interaction.channel.send(releasedCard().msg());
                 } catch (err) {
                     console.error('Error sending LTC:', err);
-                    throw new Error('Failed to send LTC');
+                    if (err.response?.data) console.error('Tatum response:', JSON.stringify(err.response.data));
+                    throw new Error(`Failed to send LTC: ${err.response?.data?.detail || err.response?.data?.message || err.message}`);
                 }
             } catch (err) {
                 console.error('Error in sendLTC function:', err);
-                interaction.editReply({
-                    content: `> ${E.elite_CautionWarning} Error while release: ${err}`
-                })
+                const msg = { content: `> ${E.elite_CautionWarning} Error while release: ${err}` };
+                if (interaction.deferred || interaction.replied) await interaction.editReply(msg).catch(() => null);
+                else await interaction.reply({ ...msg, flags: require('discord.js').MessageFlags.Ephemeral }).catch(() => null);
 
                 await interaction.channel.send({
                     content: `> ${E.elite_CautionWarning} Error: ${err.message} \n > Please Reach Out Support !`
