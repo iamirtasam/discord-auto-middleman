@@ -74,6 +74,13 @@ module.exports = {
                     });
                 }
                 else if (LTCbal >= check) {
+                    // If the leftover after send+fee is a dust change output, the
+                    // network rejects the tx — sweep it into the send instead.
+                    const leftover = LTCbal - check - fee;
+                    if (leftover > 0 && leftover * 1e8 < 5460) {
+                        console.log(`Dust change (${leftover} LTC) would be rejected — sweeping into the send`);
+                        check = LTCbal;
+                    }
                     await interaction.reply({
                         content: `> ${E.elite_LTC} Requested Release  . . . `,
                         ephemeral: true
