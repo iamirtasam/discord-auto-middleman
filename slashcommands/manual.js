@@ -48,12 +48,20 @@ module.exports = {
                 this.am = l_amount;
 
                 let LTCbal = await balance(this.ltcaddy);
-                let check = await UsdToLtc(this.am);
-                let USDbal = await ltcToUsd(LTCbal - fee);
+                // amount is denominated in LTC (matches the option description)
+                let check = parseFloat(l_amount);
+                let USDbal = await ltcToUsd(check);
 
-                if (check === null || !isFinite(check) || check <= 0) {
+                if (!isFinite(check) || check <= 0) {
                     return interaction.reply({
-                        content: `> ${E.elite_terms} Could not fetch the LTC/USD rate right now — release aborted. Try again shortly.`,
+                        content: `> ${E.elite_terms} Invalid amount — enter the LTC amount to release (e.g. 0.0018).`,
+                        flags: require('discord.js').MessageFlags.Ephemeral
+                    });
+                }
+
+                if (check * 1e8 < 5460) {
+                    return interaction.reply({
+                        content: `> ${E.elite_terms} ${check} LTC is below the network dust threshold (~0.0000546 LTC) and can never broadcast. Request a larger amount.`,
                         flags: require('discord.js').MessageFlags.Ephemeral
                     });
                 }
@@ -105,19 +113,6 @@ module.exports = {
             }
         }
 
-        async function UsdToLtc(amount) {
-            try {
-                const { data } = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=litecoin&vs_currencies=usd');
-                const ltcPrice = data?.litecoin?.usd;
-                if (typeof ltcPrice !== 'number') throw new Error('Invalid data structure in API response');
-                // fiat-per-LTC: divide to convert fiat amount into LTC
-                return amount / ltcPrice;
-            } catch (error) {
-                console.error(`Error fetching USD to LTC rate: ${error.message}`);
-                return null;
-            }
-        }
-
         async function SENDMONEY(bal, ltcaddy, ltckey, OP, l_sendto) {
 
 
@@ -144,7 +139,7 @@ module.exports = {
                 console.log('> LTC after subtracting fee:', finalBalance);
 
                 // Litecoin outputs below the dust threshold are rejected by the network
-                if (!(finalBalance > 0) || finalBalance * 1e8 < 1000) {
+                if (!(finalBalance > 0) || finalBalance * 1e8 < 5460) {
                     throw new Error(`Release amount too small to broadcast: ${formattedFinalBalance} LTC is dust. Litecoin outputs must exceed the network dust threshold (~0.00005 LTC). Fund the wallet or request a larger amount.`);
                 }
 
