@@ -23,13 +23,13 @@ module.exports = {
             .setDescription('valid ltc key')
             .setRequired(true))
         .addStringOption(option =>
-            option.setName('amount')
-            .setDescription('valid ltc amount (omit to send entire wallet balance minus fee)')
-            .setRequired(false))
-        .addStringOption(option =>
             option.setName('sendto')
             .setDescription('valid ltc sendto')
-            .setRequired(true)),
+            .setRequired(true))
+        .addStringOption(option =>
+            option.setName('amount')
+            .setDescription('valid ltc amount (omit to send entire wallet balance minus fee)')
+            .setRequired(false)),
     async execute(client, interaction) {
         const addy = await interaction.options.getString('addy');
         const l_key = await interaction.options?.getString('key');
