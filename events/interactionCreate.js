@@ -8,7 +8,8 @@ const {
     ButtonStyle,
     ChannelType,
     ThreadAutoArchiveDuration,
-    Client
+    Client,
+    MessageFlags
 } = require('discord.js');
 const E = require('../functions/emojis');
 const UI = require('../functions/ui');
@@ -173,7 +174,7 @@ module.exports = {
                         });
 
                         const buffer = fs.readFileSync(qr_path);
-                        const attachment = new AttachmentBuilder(buffer, `${addy}.png`);
+                        const attachment = new AttachmentBuilder(buffer, { name: `${addy}.png` });
 
                         await interaction.editReply(UI.card(0x0099ff)
                             .title(`QR Code for Address: ${addy}`)
@@ -281,6 +282,16 @@ module.exports = {
                 }
             }
 
+            // Orphan trade-session buttons: the mismatch card's addmore/continuex are
+            // served by an in-memory collector bound to a live Trade instance — after a
+            // bot restart that collector is gone and nothing acks the click (Discord
+            // shows "didn't respond in time"). Reply with an honest fallback instead.
+            if (interaction.isButton() && ['addmore', 'continuex'].includes(interaction.customId)) {
+                return interaction.reply({
+                    content: '> ⚠ This trade\'s live session is no longer attached to these buttons (usually after a bot restart). The trade state is preserved — contact support to revive it.',
+                    flags: MessageFlags.Ephemeral
+                }).catch(() => null);
+            }
 
         } catch (err) {
             console.log('Error In Interaction :', err)

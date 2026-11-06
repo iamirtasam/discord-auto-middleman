@@ -1579,18 +1579,23 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 .text(`<@${this.sender}>, the amount received (${this.receivedAmount} LTC) is less than the expected amount (${this.ltc_to_receive} LTC).`)
                 .fields(
                     ['Expected Amount', `\`${this.dealAmount} ${this.currency}\``],
-                    ['Received Amount', `\`${this.usd} {this.currency}\``],
+                    ['Received Amount', `\`${this.usd} ${this.currency}\``],
                 )
                 .foot('Please send the remaining amount to complete the trade.', { ts: Math.floor(Date.now() / 1000) })
                 .row(options_row)
                 .msg({ allowPing: true }));
-            const filter = (interaction) => interaction.user.id === this.sender && ['addmore', 'continuex'].includes(interaction.customId);
+            const filter = (interaction) => {
+                const ok = interaction.user.id === this.sender && ['addmore', 'continuex'].includes(interaction.customId);
+                if (!ok) console.log(`[mismatch] filtered click: user=${interaction.user.id} customId=${interaction.customId}`);
+                return ok;
+            };
             const newCollector = this.message.createMessageComponentCollector({
                 filter,
                 time: 604800000
             });
 
             newCollector.on('collect', async (interaction) => {
+                console.log(`[mismatch] click: ${interaction.customId} by ${interaction.user.id}`);
                 if (interaction.customId === 'addmore') {
                     this.sendMoreCounter++;
 
@@ -1789,7 +1794,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                         ['👤 Sender', `${this.sender}`],
                         ['📥 LTC Address', `\`\`\`${this.addy}\`\`\``],
                         ['💰 LTC Amount', `\`\`\`${this.ltc_to_receive}\`\`\``],
-                        [`💵 ${this.currency} Amount`, `\`\`\`{this.usd}\`\`\``],
+                        [`💵 ${this.currency} Amount`, `\`\`\`${this.usd}\`\`\``],
                     )
                     .fields(
                         ['Confirmations', `\`\`\`1 / 1\`\`\``],
