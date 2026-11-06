@@ -151,7 +151,7 @@ module.exports = {
                         .divider()
                         .text('The funds have been released to the following LTC address:\n\n`\n' + address + '\n`')
                         .divider()
-                        .field('Transaction ID', `[${this.txId}](https://live.blockcypher.com/ltc/tx/${this.txId})`)
+                        .field('Transaction ID', `[${this.txId}](https://litecoinspace.org/tx/${this.txId})`)
                         .field('Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`)
                         .foot(`${E.refresh} irtasam - Trade Completed`);
                     console.log('released card built')
@@ -175,11 +175,11 @@ module.exports = {
 
         async function balance(address) {
             try {
-                const endpoint = `https://api.blockcypher.com/v1/ltc/main/addrs/${address}/balance?token=${config.apiToken[0]}`;
+                const endpoint = `https://litecoinspace.org/api/address/${address}`;
                 const response = await axios.get(endpoint);
                 const data = response.data;
-                const bal = data.balance || 0;
-                const unbal = data.unconfirmed_balance || 0;
+                const bal = (data.chain_stats?.funded_txo_sum || 0) - (data.chain_stats?.spent_txo_sum || 0);
+                const unbal = (data.mempool_stats?.funded_txo_sum || 0) - (data.mempool_stats?.spent_txo_sum || 0);
                 const ltcbal = await satoshisToLtc(bal);
                 console.log('LTC in Wallet ,', ltcbal);
                 return parseFloat(ltcbal);

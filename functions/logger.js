@@ -25,7 +25,7 @@ module.exports = async (log, content) => {
                     ['Receiver', `<@${content.receiver}>`],
                     ['Amount', `\`${content.amount}\``],
                 )
-                .field('Txid', `[ \`${content.txid}\` ](https://live.blockcypher.com/ltc/tx/${content.txid})`)
+                .field('Txid', `[ \`${content.txid}\` ](https://litecoinspace.org/tx/${content.txid})`)
                 .foot('Attached below - full thread history', { ts: Math.floor(Date.now() / 1000) });
             webhookUrl = config.transcript_webhook
             break;
@@ -41,7 +41,7 @@ module.exports = async (log, content) => {
                     ['Receiver', `<@${content.receiver}>`],
                     ['Amount', `\`${amount.toFixed(3)}\``],
                 )
-                .field('Txid', `[ \`${content.txid}\` ](https://live.blockcypher.com/ltc/tx/${content.txid})`)
+                .field('Txid', `[ \`${content.txid}\` ](https://litecoinspace.org/tx/${content.txid})`)
                 .foot('Funds safely transferred', { ts: Math.floor(Date.now() / 1000) });
 
             webhookUrl = config.payment_webhook

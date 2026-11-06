@@ -23,15 +23,6 @@ apikey = 'YOUR_TATUM_API_KEY'
 xpub = 'YOUR_TATUM_XPUB'
 mnemonic = 'YOUR_12_WORD_MNEMONIC'
 
-#[blockcypher]
-apiToken = [
-    'YOUR_BLOCKCYPHER_TOKEN_1',
-    '',
-    '',
-    '',
-    ''
-]
-
 #[SYSTEM]
 timeout = '60000' # 60 seconds
 timeout2 = '20000' # 20 seconds

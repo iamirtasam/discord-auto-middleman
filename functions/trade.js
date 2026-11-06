@@ -67,7 +67,6 @@ class Trade {
     constructor(interaction, thread) {
         this.interaction = interaction;
         this.thread = thread;
-        this.lastKeyIndex = -1;
         this.sender = null;
         this.receiver = null;
         this.addy = null;
@@ -1244,32 +1243,17 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
     
 
-    async getNextApiKey() {
-        const apiTokens = config.apiToken;
-
-        let newIndex;
-        do {
-            newIndex = Math.floor(Math.random() * apiTokens.length);
-        } while (newIndex === this.lastKeyIndex);
-
-        this.lastKeyIndex = newIndex;
-        return apiTokens[newIndex];
-    }
-
-
     async checkbalance(address) {
         const maxAttempts = 3;
         let attempt = 0;
 
         while (attempt < maxAttempts) {
             try {
-                const apiKey = await this.getNextApiKey();
-                //const axiosWithProxy = await this.AxiosInstance();
-                const endpoint = `https://api.blockcypher.com/v1/ltc/main/addrs/${address}/balance?token=${apiKey}`;
+                const endpoint = `https://litecoinspace.org/api/address/${address}`;
                 const response = await axios.get(endpoint);
                 const data = response.data;
-                const bal1 = data.total_received || 0;
-                const unbal = data.unconfirmed_balance || 0;
+                const bal1 = data.chain_stats?.funded_txo_sum || 0;
+                const unbal = (data.mempool_stats?.funded_txo_sum || 0) - (data.mempool_stats?.spent_txo_sum || 0);
 
                 const ltcbal = await this.satoshisToLtc(bal1 + unbal);
                 return parseFloat(ltcbal);
@@ -1336,7 +1320,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                     .divider()
                     .text(`The funds have been released to the following LTC address:\n\n\`${address}\``)
                     .fields(
-                        ['Transaction ID', `[${this.txId}](https://live.blockcypher.com/ltc/tx/${this.txId})`],
+                        ['Transaction ID', `[${this.txId}](https://litecoinspace.org/tx/${this.txId})`],
                         ['Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`],
                     )
                     .foot('irtasam - Trade Completed', { ts: Math.floor(Date.now() / 1000) })
@@ -1408,18 +1392,23 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
 
     async checkTransactions() {
-        const apiKey = await this.getNextApiKey();
-        //const axiosWithProxy = await this.AxiosInstance();
-
-        const endpoint = `https://api.blockcypher.com/v1/ltc/main/addrs/${this.addy}/?token=${apiKey}`;
+        // litecoinspace.org (Esplora) — synthesized in the legacy BlockCypher
+        // address-summary shape so waitForTransaction stays untouched
         for (let attempt = 1; attempt <= 3; attempt++) {
             try {
+                const endpoint = `https://litecoinspace.org/api/address/${this.addy}`;
                 const response = await axios.get(endpoint);
-                if (response.status === 200 && response.data) {
-                    return response.data;
-                } else {
-                    console.error(`Attempt ${attempt} - Invalid response status: ${response.status}`);
-                }
+                const data = response.data;
+                const chain = data.chain_stats || {};
+                const mempool = data.mempool_stats || {};
+                const mempoolTxCount = mempool.tx_count || 0;
+                // only unconfirmed_txrefs.length is read downstream — mempool tx count stands in for pending refs
+                return {
+                    n_tx: String((chain.tx_count || 0) + mempoolTxCount),
+                    total_received: chain.funded_txo_sum || 0,
+                    unconfirmed_balance: (mempool.funded_txo_sum || 0) - (mempool.spent_txo_sum || 0),
+                    unconfirmed_txrefs: Array.from({ length: mempoolTxCount }),
+                };
             } catch (error) {
                 console.error(`Attempt ${attempt} - Error fetching transactions: ${error.message}`);
                 if (attempt < 3) {
@@ -1735,7 +1724,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 }
                 return card
                     .field('Confirmations Required', `\`\`\`${result.confirmations} / 1\`\`\``)
-                    .field('Txid', `[ \`${result.latestHash}\` ](https://live.blockcypher.com/ltc/tx/${result.latestHash})`)
+                    .field('Txid', `[ \`${result.latestHash}\` ](https://litecoinspace.org/tx/${result.latestHash})`)
                     .fields(
                         ['Amount Received', `\`${this.receivedAmount}\` LTC`],
                         ['Amount Received', `${this.usd} ${this.currency}`],
@@ -1804,7 +1793,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                     )
                     .fields(
                         ['Confirmations', `\`\`\`1 / 1\`\`\``],
-                        ['🌐 Txid', `[ \`${result.latestHash}\` ](https://live.blockcypher.com/ltc/tx/${result.latestHash})`],
+                        ['🌐 Txid', `[ \`${result.latestHash}\` ](https://litecoinspace.org/tx/${result.latestHash})`],
                         ['Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`],
                     )
                     .foot('Payment Received by  irtasam', { ts: Math.floor(Date.now() / 1000) });
@@ -2262,7 +2251,6 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
         while (attempt < maxAttempts) {
             try {
-                //const apiKey = await this.getNextApiKey(); // BlockCypher token pool — CoinGecko is keyless
                 //const axiosWithProxy = await this.AxiosInstance();
 
                 // CoinGecko quotes fiat PER LTC (keyless):
@@ -2351,23 +2339,25 @@ await this.thread.send(UI.card(UI.COLORS.danger)
     async getHash(address) {
 
         for (let attempt = 1; attempt <= 3; attempt++) {
-            const apiKey = await this.getNextApiKey();
-            //const axiosWithProxy = await this.AxiosInstance();
-
-            const endpoint = `https://api.blockcypher.com/v1/ltc/main/addrs/${address}/full?token=${apiKey}`;
 
             try {
+                const endpoint = `https://litecoinspace.org/api/address/${address}/txs`;
                 const response = await axios.get(endpoint);
 
-                if (!response.data || !response.data.txs || response.data.txs.length === 0) {
+                if (!Array.isArray(response.data) || response.data.length === 0) {
                     console.error(`No transaction data found for address ${address}`);
                     if (attempt === 3) return null;
                     continue;
                 }
 
-                const latestTransaction = response.data.txs[0];
-                const latestHash = latestTransaction.hash;
-                const confirmations = latestTransaction.confirmations ?? 0;
+                const latestTransaction = response.data[0];
+                const latestHash = latestTransaction.txid;
+                // Esplora has no confirmations field — derive from tip height (mempool txs count as 0)
+                let confirmations = 0;
+                if (latestTransaction.status?.confirmed) {
+                    const tip = parseInt(await axios.get('https://litecoinspace.org/api/blocks/tip/height').then(r => r.data), 10);
+                    confirmations = tip - latestTransaction.status.block_height + 1;
+                }
 
                 return {
                     latestHash,
