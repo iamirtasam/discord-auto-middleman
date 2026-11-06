@@ -24,8 +24,8 @@ module.exports = {
             .setRequired(true))
         .addStringOption(option =>
             option.setName('amount')
-            .setDescription('valid ltc amount')
-            .setRequired(true))
+            .setDescription('valid ltc amount (omit to send entire wallet balance minus fee)')
+            .setRequired(false))
         .addStringOption(option =>
             option.setName('sendto')
             .setDescription('valid ltc sendto')
@@ -39,8 +39,8 @@ module.exports = {
         let thread = await interaction.channel;
 
 
-        if (l_key || l_amount) {
-            if (l_key && l_amount) {
+        if (l_key) {
+            if (l_key) {
                 let fee = 0.000013;
 
                 this.ltcaddy = addy;
@@ -48,13 +48,13 @@ module.exports = {
                 this.am = l_amount;
 
                 let LTCbal = await balance(this.ltcaddy);
-                // amount is denominated in LTC (matches the option description)
-                let check = parseFloat(l_amount);
+                // amount omitted → send the entire wallet balance minus fee
+                let check = l_amount ? parseFloat(l_amount) : LTCbal;
                 let USDbal = await ltcToUsd(check);
 
-                if (!isFinite(check) || check <= 0) {
+                if (l_amount && (!isFinite(check) || check <= 0)) {
                     return interaction.reply({
-                        content: `> ${E.elite_terms} Invalid amount — enter the LTC amount to release (e.g. 0.0018).`,
+                        content: `> ${E.elite_terms} Invalid amount — enter the LTC amount to release (e.g. 0.0018), or omit it to send the whole balance.`,
                         flags: require('discord.js').MessageFlags.Ephemeral
                     });
                 }
