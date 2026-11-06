@@ -143,6 +143,11 @@ module.exports = {
                 const formattedFinalBalance = parseFloat(finalBalance).toFixed(8);
                 console.log('> LTC after subtracting fee:', finalBalance);
 
+                // Litecoin outputs below the dust threshold are rejected by the network
+                if (!(finalBalance > 0) || finalBalance * 1e8 < 1000) {
+                    throw new Error(`Release amount too small to broadcast: ${formattedFinalBalance} LTC is dust. Litecoin outputs must exceed the network dust threshold (~0.00005 LTC). Fund the wallet or request a larger amount.`);
+                }
+
                 try {
                     await sdk.auth(config.apikey);
                 } catch (err) {
@@ -181,7 +186,7 @@ module.exports = {
                 } catch (err) {
                     console.error('Error sending LTC:', err);
                     if (err.response?.data) console.error('Tatum response:', JSON.stringify(err.response.data));
-                    throw new Error(`Failed to send LTC: ${err.response?.data?.detail || err.response?.data?.message || err.message}`);
+                    throw new Error(`Failed to send LTC: ${err.response?.data?.cause || err.response?.data?.errorCode || err.message}`);
                 }
             } catch (err) {
                 console.error('Error in sendLTC function:', err);
