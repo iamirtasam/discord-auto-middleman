@@ -453,14 +453,14 @@ await this.thread.send(UI.card(UI.COLORS.danger)
         this.progress = 'Generated Thread Key';
 
         const xembed = UI.card(UI.COLORS.warn)
-            .title('Welcome to irtasam', E.sv)
+            .title('Welcome to Auto Middleman', E.sv)
             .divider()
             .text(`||<@${this.interaction.user.id}>&<@${user.id}>||`)
-            .text(`**${E.GreenModShield}  irtasam is a secure platform for conducting transactions with confidence. We provide:\n${E.elite_dot} Neutral third-party escrow service**\n${E.elite_dot} Protection for buyers and sellers\n${E.elite_dot} Seamless and streamlined experience`)
+            .text(`**${E.GreenModShield}  Auto Middleman is a secure platform for conducting transactions with confidence. We provide:\n${E.elite_dot} Neutral third-party escrow service**\n${E.elite_dot} Protection for buyers and sellers\n${E.elite_dot} Seamless and streamlined experience`)
             .field(`${E.elite_CautionWarning}  Important Instructions`, `${E.elite_dot} **Do not release funds until you have received the product or service as described.**\n${E.elite_dot} **If the item is not as described, contact our support team immediately.**`)
             .field(`${E.faq}  Trade Details`, `**Date:** <t:${Math.floor(Date.now() / 1000)}:F>\n**Trade Owner:** <@${this.interaction.user.id}>`)
             .field(`${E.contract}  Key`, `||${this.index}||`)
-            .foot('irtasam - Secure Transactions', { ts: Math.floor(Date.now() / 1000) });
+            .foot('Auto Middleman - Secure Transactions', { ts: Math.floor(Date.now() / 1000) });
 
         await Promise.all([
             this.thread.setName(`Trade with @${this.interaction.user.username} and @${user.user.username}`),
@@ -758,7 +758,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
             .title('Enter Deal Amount', E.elite_LTC)
             .divider()
             .text(`> **Enter the amount to be sent for the trade.**`)
-            .foot('irtasam', { ts: Math.floor(Date.now() / 1000) });
+            .foot('Auto Middleman', { ts: Math.floor(Date.now() / 1000) });
 
         await this.thread.send(amountCard.msg({ allowPing: true }));
 
@@ -843,7 +843,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
             .title('Confirm Deal Details', E.check)
             .divider()
             .field('Deal Amount', `${this.dealAmount} ${this.currency}`)
-            .foot('Deal Confirmation - irtasam', { ts: Math.floor(Date.now() / 1000) })
+            .foot('Auto Middleman - Deal Confirmation', { ts: Math.floor(Date.now() / 1000) })
             .row(this.createDealConfirmationRow())
             .msg({ allowPing: true }));
 
@@ -1012,7 +1012,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                 [`${E.fastforward}  Receiver (Receiver)`, this.receiver ? `<@${this.receiver}>` : 'None selected'],
             )
             .field(`${E.elite_CautionWarning}  Important`, `Ensure the trade details are correct before proceeding.\nIf any information is incorrect, contact support immediately.`)
-            .foot('irtasam - Verify Trade Details', { ts: Math.floor(Date.now() / 1000) });
+            .foot('Auto Middleman - Verify Trade Details', { ts: Math.floor(Date.now() / 1000) });
     }
 
     /** Shared CV2 builder for the Deal Confirmation card (with or without buttons). */
@@ -1021,7 +1021,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
             .title('Confirm Deal Details', E.check)
             .divider()
             .field('Deal Amount', `${this.dealAmount} ${this.currency}`)
-            .foot('Deal Confirmation - irtasam', { ts: Math.floor(Date.now() / 1000) });
+            .foot('Auto Middleman - Deal Confirmation', { ts: Math.floor(Date.now() / 1000) });
     }
 
 
@@ -1154,7 +1154,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                     [`${E.elite_LTC}  LTC`, `\`${this.ltc_to_receive}\``],
                     [`${E.Money}  ${this.currency}`, `\`${this.dealAmount}\``],
                 )
-                .foot('irtasam - Payment Invoice', { ts: Math.floor(Date.now() / 1000) })
+                .foot('Auto Middleman - Payment Invoice', { ts: Math.floor(Date.now() / 1000) })
                 .row(row)
                 .msg({ allowPing: true }));
 
@@ -1323,7 +1323,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                         ['Transaction ID', `[${this.txId}](https://litecoinspace.org/tx/${this.txId})`],
                         ['Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`],
                     )
-                    .foot('irtasam - Trade Completed', { ts: Math.floor(Date.now() / 1000) })
+                    .foot('Auto Middleman - Trade Completed', { ts: Math.floor(Date.now() / 1000) })
                     .msg());
                 this.progress = `Releasesd Funds at ${address}`
                 await this.thread.sendTyping();
@@ -1629,7 +1629,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                             .text('Sender continues the deal despite receiving a different LTC amount.')
                             .field('Situation', 'Received LTC amount differs from the agreed deal.')
                             .field('Decision', `${this.receiver}  If you disagree with the decision, you can cancel the trade.`)
-                            .foot('irtasam - Secure Transactions', { ts: Math.floor(Date.now() / 1000) })
+                            .foot('Auto Middleman - Secure Transactions', { ts: Math.floor(Date.now() / 1000) })
                             .msg());
 
 
@@ -1784,7 +1784,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
 
                 // Built the same as before but not sent in the current flow (kept for reference)
                 const paymentReceivedCard = UI.card(UI.COLORS.success)
-                    .title('Payment Received by irtasam')
+                    .title('Payment Received')
                     .divider();
                 if (this.dealAmount > this.usd) {
                     paymentReceivedCard.field('⚠️ Alert', 'The deal was finalized with a lower amount than the agreed upon deal value');
@@ -1801,7 +1801,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                         ['🌐 Txid', `[ \`${result.latestHash}\` ](https://litecoinspace.org/tx/${result.latestHash})`],
                         ['Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`],
                     )
-                    .foot('Payment Received by  irtasam', { ts: Math.floor(Date.now() / 1000) });
+                    .foot('Payment Received', { ts: Math.floor(Date.now() / 1000) });
                 void paymentReceivedCard;
 
                 if (this.bb) {
@@ -1858,7 +1858,7 @@ await this.thread.send(UI.card(UI.COLORS.danger)
                     [`${E.elite_LTC}  LTC`, `\`\`\`${this.receivedAmount}\`\`\``],
                     [`${E.Money}  ${this.currency}`, `\`\`\`${this.usd}\`\`\``],
                 )
-                .foot('irtasam - Wallet Transaction', { ts: Math.floor(Date.now() / 1000) })
+                .foot('Auto Middleman - Wallet Transaction', { ts: Math.floor(Date.now() / 1000) })
                 .row(newComp)
                 .msg({ allowPing: true });
 

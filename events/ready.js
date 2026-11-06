@@ -20,7 +20,7 @@ module.exports = {
 
         await client.user.setPresence({
             activities: [{
-                name: `irtasam`,
+                name: `Auto Middleman`,
                 type: ActivityType.Watching
             }],
             status: 'dnd',

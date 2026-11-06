@@ -144,7 +144,7 @@ module.exports = {
                     });
                     await interaction.reply({ content: `We sent a copy of the transcript in your dm's.`, ephemeral: true })
                     await interaction.user.send(UI.card(UI.COLORS.info)
-                        .title('irtasam Transcript')
+                        .title('Auto Middleman Transcript')
                         .divider()
                         .file(attachment.name)
                         .foot('Full copy of this trade thread', { ts: Math.floor(Date.now() / 1000) })

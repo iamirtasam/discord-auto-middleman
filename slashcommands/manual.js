@@ -181,7 +181,7 @@ module.exports = {
                         .divider()
                         .field('Transaction ID', `[${this.txId}](https://litecoinspace.org/tx/${this.txId})`)
                         .field('Timestamp', `<t:${Math.floor(Date.now() / 1000)}:F>`)
-                        .foot(`${E.refresh} irtasam - Trade Completed`);
+                        .foot(`${E.refresh} Auto Middleman - Trade Completed`);
                     console.log('released card built')
                     interaction.editReply(releasedCard().msg({ content: null }))
                     await interaction.channel.send(releasedCard().msg());

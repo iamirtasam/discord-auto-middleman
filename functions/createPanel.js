@@ -57,7 +57,7 @@ module.exports.createPanel = async (client, interaction) => {
          */
         const panelCard = (row) => UI.card(UI.COLORS.brand)
             .section(
-                [`# ${E.Money}  Novex AutoMM`],
+                [`# ${E.Money}  Auto Middleman`],
                 { thumb: client.user.displayAvatarURL({ extension: 'png', size: 256 }) },
             )
             .divider()
@@ -73,7 +73,7 @@ module.exports.createPanel = async (client, interaction) => {
             .heading('How the fees work?', { emoji: E.correct, level: 3 })
             .text(`When you send the money to the address, the bot will detect the amount and will calculate the fees. The fees are 0.25% of the amount of the deal, in addition to blockchain fees, which are not included in the service fees. The fees are deducted from the amount of the deal when releasing the funds to the seller`)
             .divider()
-            .foot('irtasam - AutoMM')
+            .foot('Auto Middleman')
             .row(row);
 
         const rowWithAutoMM = () => new ActionRowBuilder().addComponents(autoMMButton);
